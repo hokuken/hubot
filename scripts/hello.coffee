@@ -10,7 +10,3 @@
 module.exports = (robot) ->
   robot.respond /HELLO$/i, (msg) ->
     msg.send "hello"
-
-  robot.respond /BYE$/i, (msg) ->
-    msg.send "bye"
-    process.exit 0
