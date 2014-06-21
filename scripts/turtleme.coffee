@@ -2,13 +2,13 @@
 #   hubotに亀の写真を拾ってきてもらう
 #
 # Commands:
-#   hubot turtleme - Queries Google Images for turtle and returns a random top result.
+#   hubot turtle me - Queries Google Images for turtle and returns a random top result.
 
 # Hubotのスクリプトはモジュールとして記述し，
 # Hubot起動時にrequireされてexportした関数が呼び出されます
 
 module.exports = (robot) ->
-  robot.respond /turtleme/i, (msg) ->
+  robot.respond /turtle me/i, (msg) ->
     turtleMe msg, (url) ->
       msg.send url
 
