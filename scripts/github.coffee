@@ -23,19 +23,18 @@ emojiMe = (msg, cb) ->
   if fs.existsSync(cachefile)
     body = fs.readFile cachefile, (err, data) ->
       emojis = JSON.parse(data)
-      emoji_url = []
       for emoji in emoji_arr
-        emoji_url.push emojis[emoji]
-      cb emoji_url.join("\n") || "ないよ"
+        emoji_url = emojis[emoji]
+        cb emoji_url.join("\n") || "ないよ"
+
   else
     msg.http('https://api.github.com/emojis')
       .get() (err, res, body) ->
         fs.writeFile cachefile, body
         emojis = JSON.parse(body)
-        emoji_url = []
         for emoji in emoji_arr
-          emoji_url.push emojis[emoji]
-        cb emoji_url.join("\n") || "ないよ"
+          emoji_url = emojis[emoji]
+          cb emoji_url.join("\n") || "ないよ"
 
 
 clearEmojiCache = (msg) ->
