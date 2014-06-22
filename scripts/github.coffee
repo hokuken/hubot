@@ -25,7 +25,7 @@ emojiMe = (msg, cb) ->
       emojis = JSON.parse(data)
       for emoji in emoji_arr
         emoji_url = emojis[emoji]
-        cb emoji_url.join("\n") || "ないよ"
+        cb emoji_url || "ないよ"
 
   else
     msg.http('https://api.github.com/emojis')
@@ -34,7 +34,7 @@ emojiMe = (msg, cb) ->
         emojis = JSON.parse(body)
         for emoji in emoji_arr
           emoji_url = emojis[emoji]
-          cb emoji_url.join("\n") || "ないよ"
+          cb emoji_url || "ないよ"
 
 
 clearEmojiCache = (msg) ->
