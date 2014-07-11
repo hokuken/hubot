@@ -26,6 +26,9 @@ module.exports = (robot) ->
     else
       imageMe msg, imagery, false, true, (url) ->
         msg.send "#{mustachify}#{url}"
+  robot.on "image:get", (msg, room) ->
+    imageMe msg, msg.query, (url) ->
+      robot.messageRoom room, url
 
 imageMe = (msg, query, animated, faces, cb) ->
   cb = animated if typeof animated == 'function'
@@ -41,4 +44,3 @@ imageMe = (msg, query, animated, faces, cb) ->
       if images?.length > 0
         image  = msg.random images
         cb "#{image.unescapedUrl}#.png"
-
