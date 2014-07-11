@@ -8,4 +8,4 @@ module.exports = (robot) ->
   robot.hear /fine/, (msg) ->
     robot.brain.data.count = 0
     robot.brain.save
-    msg.send "Good."
+    msg.send "Good!!"
