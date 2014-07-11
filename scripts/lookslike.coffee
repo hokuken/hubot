@@ -2,9 +2,9 @@
 #   hubot に誰かが何に似てるか教えたり聞いたりする
 #
 # Commands:
-#   hubot xxx looks like keyword
-#   hubot who does xxx look like?
-#   hubot xxx does not look like anyone
+#   hubot <user> looks like keyword
+#   hubot who does <user> look like?
+#   hubot <user> does not look like anyone
 
 module.exports = (robot) ->
 
