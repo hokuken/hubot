@@ -107,7 +107,7 @@ module.exports = (robot) ->
     save_user_strength msg
 
   #robot.respond /strength list please/i, (msg) ->
-  robot.respond /皆の(強み|資質)を教えて/i, (msg) ->
+  robot.respond /(皆|みんな)の(強み|資質)を教えて/i, (msg) ->
     text = ""
     for user_name, strength_ranking of robot.brain.data.strength
       text += "*#{user_name}* の強みは\n"
