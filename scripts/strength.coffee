@@ -47,7 +47,7 @@ module.exports = (robot) ->
       msg.send "登録されていません！"
 
   save_user_strength = (msg) ->
-    [full_text, user_name, strength_label, strength_text, rank_index] = msg.data
+    [user_name, strength_label, strength_text, rank_index] = msg.data
     strength_arr = strength_text.split /\s*[,、]\s*/
     ranking = []
 
@@ -59,12 +59,12 @@ module.exports = (robot) ->
     if ranking.length > 0
       if ranking.length == 1
         strength = ranking[0]
-        robot.brain.data.strength[user_name][0] = strength.title
-        msg.send "#{user_name}の#{strength_label}は#{strength.title}ですね。"
+        robot.brain.data.strength[user_name][rank_index] = strength.title
+        msg.send "#{user_name}の#{rank_index+1}番の#{strength_label}は#{strength.title}ですね。"
       else
         for strength, i in ranking
           robot.brain.data.strength[user_name][i] = strength.title
-          msg.send "#{user_name}の#{i+1}番目の#{strength_label}は#{strength.title}ですね。"
+          msg.send "#{user_name}の#{i+1}番の#{strength_label}は#{strength.title}ですね。"
     else
       msg.send "該当する#{strength_label}が見当たりません。"
 
@@ -85,7 +85,21 @@ module.exports = (robot) ->
     respond_user_strength msg
 
 
-  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(?!何)(.+?)(です。?)?$/i, (msg) ->
-    msg.data = msg.match
+  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(?!何|？)(.+?)(です。?)?$/i, (msg) ->
+    msg.data = [
+      msg.match[1],
+      msg.match[2],
+      msg.match[3],
+      0
+    ]
     msg.data.push 0
+    save_user_strength msg
+
+  robot.respond /@?([a-z0-9]+)\s*の(\d)番目?の(強み|資質)は(?!何|？)(.+?)(です。?)?$/i, (msg) ->
+    msg.data = [
+      msg.match[1],
+      msg.match[3],
+      msg.match[4],
+      msg.match[2]-1
+    ]
     save_user_strength msg
