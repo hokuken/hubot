@@ -36,20 +36,18 @@ class StrengthList
 
 module.exports = (robot) ->
 
-  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(何(だっけ)?)?？/i, (msg) ->
-    user_name = msg.match[1]
-    strength_label = msg.match[3]
-    strength_name = robot.brain.data.strength[user_name][0]
+  respond_user_strength = (msg) ->
+    [user_name, strength_label, rank_index] = msg.data
+    strength_name = robot.brain.data.strength[user_name][rank_index]
     strength_title = StrengthList.getTitle(strength_name)
 
     if strength_title?
-      msg.send "やだなぁ、#{user_name}の#{strength_label}は *#{strength_title}* じゃないですか"
+      msg.send "やだなぁ、#{user_name}の#{rank_index+1}番の#{strength_label}は *#{strength_title}* じゃないですか"
     else
       msg.send "登録されていません！"
 
-
-  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(?!何)(.+?)(です。?)?$/i, (msg) ->
-    [full_text, user_name, strength_label, strength_text] = msg.match
+  save_user_strength = (msg) ->
+    [full_text, user_name, strength_label, strength_text, rank_index] = msg.data
     strength_arr = strength_text.split /\s*[,、]\s*/
     ranking = []
 
@@ -65,6 +63,29 @@ module.exports = (robot) ->
         msg.send "#{user_name}の#{strength_label}は#{strength.title}ですね。"
       else
         for strength, i in ranking
+          robot.brain.data.strength[user_name][i] = strength.title
           msg.send "#{user_name}の#{i+1}番目の#{strength_label}は#{strength.title}ですね。"
     else
       msg.send "該当する#{strength_label}が見当たりません。"
+
+  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(何(だっけ)?)?？/i, (msg) ->
+    msg.data = [
+      msg.match[1],
+      msg.match[2],
+      0
+    ]
+    respond_user_strength msg
+
+  robot.respond /@?([a-z0-9]+)\s*の(\d)番目?の(強み|資質)は(何(だっけ)?)?？/i, (msg) ->
+    msg.data = [
+      msg.match[1],
+      msg.match[3],
+      msg.match[2]-1
+    ]
+    respond_user_strength msg
+
+
+  robot.respond /@?([a-z0-9]+)\s*の(強み|資質)は(?!何)(.+?)(です。?)?$/i, (msg) ->
+    msg.data = msg.match
+    msg.data.push 0
+    save_user_strength msg
