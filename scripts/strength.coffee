@@ -124,3 +124,29 @@ module.exports = (robot) ->
         text += "#{rank_index+1}位：#{strength_title}\n"
       text += "\n"
     msg.send text
+
+  robot.respond /Team card/i, (msg) ->
+    AsciiTable = require 'ascii-table'
+    table = new AsciiTable 'Team Card'
+
+    users = []
+    headings = ["#"]
+    for user_name, strength_title of robot.brain.data.strength
+      users.push user_name
+      headings.push user_name
+
+    table.setHeading.apply(table, headings)
+
+    for strength_name, strength of StrengthList.get()
+      row = [strength.title]
+      for user_name in users
+        for strenght_title in robot.brain.data.strength[user_name]
+          if strength_title.toString() == strength.title.toString()
+            row.push "◯"
+          else
+            row.push " "
+      table.addRow.apply(table, row)
+
+    table.setAlign 1, AsciiTable.RIGHT
+
+    msg.send table.toString()
