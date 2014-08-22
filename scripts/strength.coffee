@@ -36,15 +36,21 @@ class StrengthList
 
 module.exports = (robot) ->
 
-  robot.brain.data.strength = {} unless robot.brain.data.strength?
-
   respond_user_strength = (msg) ->
     [user_name, strength_label, rank_index] = msg.data
     strength_name = robot.brain.data.strength[user_name][rank_index]
     strength_title = StrengthList.getTitle(strength_name)
+    text_pares = [
+      ["やだなぁ", "じゃないですか"],
+      ["ご存知", "ですよ！"],
+      ["しびれるぅ！", "だッッッ！！"],
+      ["ご主人様、", "でございます。"],
+      ["神よ", "であることをお許し下さい。Amen"]
+    ]
+    [prefix, suffix] = text_pares[Math.floor Math.random() * text_pares.length]
 
     if strength_title?
-      msg.send "やだなぁ、#{user_name}の#{rank_index+1}番の#{strength_label}は *#{strength_title}* じゃないですか"
+      msg.send "#{prefix}#{user_name}の#{rank_index+1}番の#{strength_label}は *#{strength_title}* #{suffix}"
     else
       msg.send "登録されていません！"
 
@@ -52,6 +58,8 @@ module.exports = (robot) ->
     [user_name, strength_label, strength_text, rank_index] = msg.data
     strength_arr = strength_text.split /\s*[,、]\s*/
     ranking = []
+    robot.brain.data.strength = {} unless robot.brain.data.strength
+    robot.brain.data.strength[user_name] = []
 
     for value, i in strength_arr
       strength = StrengthList.get value
@@ -110,7 +118,7 @@ module.exports = (robot) ->
   robot.respond /(皆|みんな)の(強み|資質)を教えて/i, (msg) ->
     text = ""
     for user_name, strength_ranking of robot.brain.data.strength
-      text += "*#{user_name}* の強みは\n"
+      text += "*#{user_name}* の強み：\n"
       for rank_index, strength_title of strength_ranking
         rank_index = parseInt(rank_index, 10)
         text += "#{rank_index+1}位：#{strength_title}\n"
