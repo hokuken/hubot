@@ -36,6 +36,8 @@ class StrengthList
 
 module.exports = (robot) ->
 
+  robot.brain.data.strength = {} unless robot.brain.data.strength?
+
   respond_user_strength = (msg) ->
     [user_name, strength_label, rank_index] = msg.data
     strength_name = robot.brain.data.strength[user_name][rank_index]
@@ -103,3 +105,14 @@ module.exports = (robot) ->
       msg.match[2]-1
     ]
     save_user_strength msg
+
+  #robot.respond /strength list please/i, (msg) ->
+  robot.respond /皆の(強み|資質)を教えて/i, (msg) ->
+    text = ""
+    for user_name, strength_ranking of robot.brain.data.strength
+      text += "*#{user_name}* の強みは\n"
+      for rank_index, strength_title of strength_ranking
+        rank_index = parseInt(rank_index, 10)
+        text += "#{rank_index+1}位：#{strength_title}\n"
+      text += "\n"
+    msg.send text
