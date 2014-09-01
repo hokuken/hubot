@@ -1,0 +1,28 @@
+# CronJob list
+# key: { time: "* * * * *", message: "...", room: "#general", start: true}
+# You want to specify numbered week day e.g. 2nd mon,
+# add eachMonth option e.g. eachMonth: "2nd".
+
+
+# 毎週水曜日に燃えるゴミの案内
+burnable:
+  time: "0 17 * * 3"
+  message: "明日は燃えるごみの日です。ごみをまとめましょう！＠茨木 @all"
+
+# 毎月第2, 4月曜日は缶・ビン・ペットボトルゴミの案内
+bottle:
+  time: "0 17 * * 1"
+  eachMonth: "2nd, 4th"
+  message: "明日は缶・ビン・ペットボトルのごみの日です。＠茨木 @all"
+
+# 毎月1日は掃除を提案
+clean:
+  time: "0 10 1 * *"
+  message: "今日は月始めです。掃除でもしませんか？ @all"
+
+greet:
+  #time: "0 09 * * 1-5"
+  time: "*/1 * * * *"
+  message: [
+    "おはようございます！今日の目標は？ @all",
+    "おはようさんです！今日は何しますか？ @all"]
