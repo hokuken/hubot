@@ -3,7 +3,8 @@
 #
 # Commands:
 #   hubot tiqav me <query>
-#   hubot ちくわ
+#   hubot <query>の画像くれ
+#   hubot 何か画像くれ
 
 tiqav = require "tiqav.js"
 
