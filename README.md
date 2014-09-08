@@ -1,6 +1,6 @@
-# Hubot
+# Hokuken Hubot
 
-This is a version of GitHub's Campfire bot, hubot. He's pretty cool.
+This is a version of Hokuken's Slack bot, hubot. He's pretty cool.
 
 This version is designed to be deployed on [Heroku][heroku]. This README was generated for you by hubot to help get you started. Definitely update and improve to talk about your own instance, how to use and deploy, what functionality he has, etc!
 
@@ -127,27 +127,21 @@ Please check out the [deploying hubot onto UNIX][deploy-unix] and
 [deploy-unix]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
 [deploy-windows]: https://github.com/github/hubot/blob/master/docs/deploying/unix.md
 
-## Campfire Variables
+## Slack Variables
 
-If you are using the Campfire adapter you will need to set some environment
+If you are using the Slack adapter you will need to set some environment
 variables. Refer to the documentation for other adapters and the configuraiton
 of those, links to the adapters can be found on [Hubot Adapters][hubot-adapters].
 
-Create a separate Campfire user for your bot and get their token from the web
-UI.
+    % heroku config:set HUBOT_SLACK_TOKEN="..."
 
-    % heroku config:set HUBOT_CAMPFIRE_TOKEN="..."
+Get the IDs of the team you want the bot to join.
 
-Get the numeric IDs of the rooms you want the bot to join, comma delimited. If
-you want the bot to connect to `https://mysubdomain.campfirenow.com/room/42` 
-and `https://mysubdomain.campfirenow.com/room/1024` then you'd add it like this:
+    % heroku config:set HUBOT_SLACK_TEAM="hokuken"
 
-    % heroku config:set HUBOT_CAMPFIRE_ROOMS="42,1024"
+Set hubot name like:
 
-Add the subdomain hubot should connect to. If you web URL looks like
-`http://mysubdomain.campfirenow.com` then you'd add it like this:
-
-    % heroku config:set HUBOT_CAMPFIRE_ACCOUNT="mysubdomain"
+    % heroku config:set HUBOT_SLACK_BOTNAME="slackbot"
 
 [hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
 
