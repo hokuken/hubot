@@ -1,24 +1,24 @@
 {
-  "name": "hosted-hubot",
-  "version": "2.7.1",
+  "name": "hokuken-bot",
+  "version": "1.0.0",
   "private": true,
-  "author": "GitHub Inc.",
+  "author": "Hokuken Inc.",
   "keywords": [
-    "github",
+    "hokuken",
     "hubot",
-    "campfire",
+    "slack",
     "bot"
   ],
-  "description": "A simple helpful robot for your Company",
+  "description": "A simple helpful robot for Hokuken",
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/github/hubot/raw/master/LICENSE"
+      "url": "https://github.com/hokuken-inc/hubot/raw/master/LICENSE"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/github/hubot.git"
+    "url": "https://github.com/hokuken-inc/hubot.git"
   },
   "dependencies": {
     "ascii-table": "0.0.4",
