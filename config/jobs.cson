@@ -25,3 +25,9 @@ greet:
   message: [
     "おはようございます！今日の目標は？ @everyone",
     "おはようさんです！今日は何しますか？ @everyone"]
+
+review:
+  time: "0 18 * * 1-5"
+  message: [
+    "お疲れ様です。今日の目標は達成できましたか？ @everyone",
+    "もう夕方ですね、今日はどんな事をしましたか？ @everyone"]
