@@ -39,7 +39,7 @@ module.exports = (robot) ->
     "e74c3c"
   ]
 
-  robot.respond /今日の目標は(?!？)(.+)/i, (msg) ->
+  robot.respond /今日の目標は(?!？)([\s\S]+)/i, (msg) ->
     goal = msg.match[1]
     user = msg.envelope.user.name
     expiration = moment()
