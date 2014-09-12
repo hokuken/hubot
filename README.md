@@ -1,4 +1,5 @@
 # Hokuken Hubot
+[![Build Status](https://travis-ci.org/hokuken/hubot.svg?branch=master)](https://travis-ci.org/hokuken/hubot)
 
 This is a version of Hokuken's Slack bot, hubot. He's pretty cool.
 
