@@ -99,18 +99,20 @@ module.exports = (robot) ->
       user_rates[_user] = rate
 
     chart_url = getBarCharUrl user_rates, embed_user
+    url_shorten chart_url, (chart_url) ->
+      unless data and data.attempted
+        msg.send "皆さんの目標達成度のチャートです。\n" +
+          chart_url
+      else
+        rate = getRate data.achieved, data.attempted
+        review = reviews[Math.floor rate / 20]
+        msg.send "#{user}さんの目標達成度は、" +
+          "#{rate}%" +
+          "（#{data.achieved} / #{data.attempted}）です！\n" +
+          review + "\n" +
+          chart_url
 
-    unless data and data.attempted
-      msg.send "皆さんの目標達成度のチャートです。\n" +
-        chart_url
-    else
-      rate = getRate data.achieved, data.attempted
-      review = reviews[Math.floor rate / 20]
-      msg.send "#{user}さんの目標達成度は、" +
-        "#{rate}%" +
-        "（#{data.achieved} / #{data.attempted}）です！\n" +
-        review + "\n" +
-        chart_url
+
 
   getRate = (achieved, attempted) ->
     Math.round achieved / attempted * 100
@@ -147,3 +149,16 @@ module.exports = (robot) ->
     bar.addAxisLabels('x', [0, 25, 50, 75, 100])
 
     bar.getUrl true
+
+  url_shorten = (url, callback) ->
+    request = require "request"
+
+    options = {
+      uri: "https://www.googleapis.com/urlshortener/v1/url"
+      json: {longUrl: url}
+      method: "POST"
+    }
+
+    res = request options, (e, r, body) ->
+      data = body
+      callback data.id if data.id?
