@@ -98,9 +98,6 @@ module.exports = (robot) ->
       rate = getRate achieved, attempted
       user_rates[_user] = rate
 
-    user_rates["test"] = 87
-    user_rates["test2"] = 33
-
     chart_url = getBarCharUrl user_rates, embed_user
 
     unless data and data.attempted
