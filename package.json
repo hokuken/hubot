@@ -31,7 +31,8 @@
     "quiche": "0.0.8",
     "request": "^2.42.0",
     "tiqav.js": "~0.1.4",
-    "underscore": "^1.7.0"
+    "underscore": "^1.7.0",
+    "underscore.string": "^2.3.3"
   },
   "engines": {
     "node": ">= 0.8.x",
