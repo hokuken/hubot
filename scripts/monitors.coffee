@@ -5,11 +5,11 @@
 #   None
 #
 # Configuration:
-#   None
+#   HUBOT_MONITORS_CHANNEL: channel name for sending alert
 #
 # Commands:
-#   hubot <URL>を監視して
-#   hubot 今の稼働状況を教えて
+#   hubot <URL>を監視
+#   hubot 今の稼働状況は？
 #
 # URLS:
 #   None
@@ -24,6 +24,8 @@ URL = require 'url'
 module.exports = (robot) ->
 
   robot.brain.data.monitors = {} unless robot.brain.data.monitors?
+
+  room = process.env.HUBOT_MONITORS_CHANNEL
 
   class Monitor
     @schema = {
