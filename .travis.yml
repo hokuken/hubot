@@ -8,3 +8,4 @@ deploy:
   app: big2men-hokuken-slackbot
   on:
     repo: hokuken/hubot
+  buildpack: nodejs
