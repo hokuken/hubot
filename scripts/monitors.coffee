@@ -34,6 +34,7 @@ module.exports = (robot) ->
       statusCode: null
       downedAt: null
       checkedAt: null
+      alertedAt: null
     }
 
     @adjustUrl: (url) ->
@@ -41,6 +42,37 @@ module.exports = (robot) ->
       unless /^https?:\/\//i.test url
         url = "http://" + _s.ltrim url, "/"
       url
+
+    @addSchedule: (url) ->
+      job = {
+        cronTime: "*/1 * * * *"
+        onTick: ->
+          monitor = new Monitor url
+          monitor.run (err) ->
+            if err
+              if monitor.data.alertedAt
+                alerted_at = moment monitor.data.alertedAt
+                if alerted_at.add(1, "h").isAfter moment()
+                  return
+
+              monitor.data.alertedAt = moment().format()
+              monitor.save()
+              if monitor.data.status is "missing"
+                robot.send {room: room},
+                  "#{monitor.url} へアクセスできません！" +
+                  "至急確認してください @channel\n" +
+                  monitor.toString()
+              else
+                robot.send {room: room},
+                  "#{monitor.url} で問題が発生しています！" +
+                  "至急確認してください @channel\n" +
+                  monitor.toString()
+        start: true
+      }
+      try
+        new CronJob job
+      catch error
+        console.log error
 
     constructor: (url) ->
       @url = Monitor.adjustUrl url
@@ -79,11 +111,14 @@ module.exports = (robot) ->
           callback? true
 
     toString: () ->
-      buffer = "#{@url}: *#{@data.status}* (";
+      buffer = "#{@url} : *#{@data.status}* (";
       buffer += "status code: #{@data.statusCode}, " if @data.statusCode
       buffer += "updated at: #{@data.checkedAt}"
       buffer += ", downed at: #{@data.downedAt} " if @data.downedAt
       buffer += ")"
+
+  for url, monitor of robot.brain.data.monitors
+    Monitor.addSchedule url
 
   robot.respond /(.+)を監視/i, (msg) ->
     url = Monitor.adjustUrl msg.match[1]
@@ -94,14 +129,18 @@ module.exports = (robot) ->
     monitor.save()
     monitor.run (err) ->
       if err
-        if monitor.data.status == "missing"
+        if monitor.data.status is "missing"
           msg.send "#{monitor.url} へアクセスできません。監視を解除します"
           monitor.delete()
+          return
         else
           msg.send "#{monitor.url} でエラーが起きています" +
             "（ステータス：#{monitor.data.statusCode}）"
       else
         msg.send "#{monitor.url} は正常に動作しています。"
+
+      #register cron job
+      Monitor.addSchedule monitor.url
 
   robot.respond /.*稼働状況.*/i, (msg) ->
     #getMonitor
