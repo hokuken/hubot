@@ -103,3 +103,22 @@ module.exports = (robot) ->
   robot.respond /.*稼働状況.*/i, (msg) ->
     #getMonitor
     msg.send "現在の稼働状況は..."
+    lines = []
+    alive = 0
+    dead = 0
+    missing = 0
+    for url, monitor of robot.brain.data.monitors
+      m = new Monitor url
+      switch m.data.status
+        when "alive" then alive += 1
+        when "dead" then dead += 1
+        when "missing" then missing += 1
+      lines.push m.toString()
+
+    text = lines.join "\n"
+
+    if dead + missing > 0
+      text += "\n\n"
+      text += "#{dead + missing}台のサーバーでエラーが発生しています。"
+
+    setTimeout (-> msg.send text), 1000
