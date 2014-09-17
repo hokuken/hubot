@@ -83,7 +83,7 @@ module.exports = (robot) ->
       buffer += ", downed at: #{@data.downedAt} " if @data.downedAt
       buffer += ")"
 
-  robot.respond /(.+)を監視(?:して)?/i, (msg) ->
+  robot.respond /(.+)を監視/i, (msg) ->
     url = Monitor.adjustUrl msg.match[1]
     #registerMonitor service
     urlinfo = URL.parse url
@@ -93,7 +93,8 @@ module.exports = (robot) ->
     monitor.run (err) ->
       if err
         if monitor.data.status == "missing"
-          msg.send "#{monitor.url} へアクセスできません。"
+          msg.send "#{monitor.url} へアクセスできません。監視を解除します"
+          monitor.delete()
         else
           msg.send "#{monitor.url} でエラーが起きています" +
             "（ステータス：#{monitor.data.statusCode}）"
