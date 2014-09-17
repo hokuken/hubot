@@ -127,7 +127,6 @@ module.exports = (robot) ->
     bar.setBarWidth 10
     bar.setBarSpacing 5
     bar.setLegendLeft()
-    bar.setTransparentBackground()
 
     if embed_user?
       index = parseInt Math.random() * colors.length, 10
