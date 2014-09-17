@@ -52,7 +52,7 @@ module.exports = (robot) ->
         achieved: 0
       }
     _.extend robot.brain.data.goals[user], {
-      expiration: expiration
+      expiration: expiration.format()
       goal: goal
       attempted: robot.brain.data.goals[user].attempted + 1
     }
@@ -63,7 +63,7 @@ module.exports = (robot) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
-    unless data and data.expiration.isAfter moment()
+    unless data and moment(data.expiration).isAfter moment()
       msg.send "#{user}さんの今日の目標は設定されておりません。"
       return
     msg.send "#{user}さんの今日の目標は「#{data.goal}」です。"
@@ -72,11 +72,11 @@ module.exports = (robot) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
-    unless data and data.expiration.isAfter moment()
+    unless data and moment(data.expiration).isAfter moment()
       msg.send "#{user}さん、今日は目標設定してないですよ。"
       return
     robot.brain.data.goals[user].achieved += 1
-    robot.brain.data.goals[user].expiration = moment()
+    robot.brain.data.goals[user].expiration = moment().format()
     msg.send "#{user}さんの目標は。。。\n「#{data.goal}」ですね。\n" +
       msg.random congraturations
 
