@@ -77,8 +77,11 @@ module.exports = (robot) ->
           callback? true
 
     toString: () ->
-      return "#{@url}:#{@data.status} (updated at: #{@data.checkedAt})"
-
+      buffer = "#{@url}: *#{@data.status}* (";
+      buffer += "status code: #{@data.statusCode}, " if @data.statusCode
+      buffer += "updated at: #{@data.checkedAt}"
+      buffer += ", downed at: #{@data.downedAt} " if @data.downedAt
+      buffer += ")"
 
   robot.respond /(.+)を監視(?:して)?/i, (msg) ->
     url = Monitor.adjustUrl msg.match[1]
