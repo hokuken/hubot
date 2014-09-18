@@ -37,6 +37,8 @@ module.exports = (robot) ->
       alertedAt: null
     }
 
+    @schedulesStarted = false
+
     @adjustUrl: (url) ->
       url = _s.trim url
       unless /^https?:\/\//i.test url
@@ -73,6 +75,13 @@ module.exports = (robot) ->
         new CronJob job
       catch error
         console.log error
+
+    @startSchedules: () ->
+      return if Monitor.schedulesStarted
+
+      for url, monitor of robot.brain.data.monitors
+        Monitor.addSchedule url
+      Monitor.schedulesStarted = true
 
     constructor: (url) ->
       @url = Monitor.adjustUrl url
@@ -117,10 +126,11 @@ module.exports = (robot) ->
       buffer += ", downed at: #{@data.downedAt} " if @data.downedAt
       buffer += ")"
 
-  for url, monitor of robot.brain.data.monitors
-    Monitor.addSchedule url
+  robot.brain.on "loaded", () ->
+    Monitor.startSchedules()
 
   robot.respond /(.+)を監視/i, (msg) ->
+
     url = Monitor.adjustUrl msg.match[1]
     #registerMonitor service
     urlinfo = URL.parse url
