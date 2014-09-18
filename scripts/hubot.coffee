@@ -17,14 +17,15 @@ module.exports = (robot) ->
     msg.send "#{pkg.version} (hubot: #{robot.version})"
 
   robot.router.post "/hubot/deployed", (req, res) ->
+    query = req.query
     body = req.body
-    unless process.env.HUBOT_TOKEN is body.token
+    unless process.env.HUBOT_TOKEN? and process.env.HUBOT_TOKEN in [query.token, body.token]
       res.writeHead 403
       res.end "NG"
       return
 
     message = "おまえら新しい俺様がデプロイされたぞこらぁ！\n" +
       "バージョンは #{pkg.version} だぞたここらぁ！"
-    room = process.env.HUBOT_NOTIFICATION_CHANNEL
+    room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
     robot.send {room: room}, message
     res.end "OK"
