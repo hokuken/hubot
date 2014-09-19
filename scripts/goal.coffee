@@ -15,7 +15,8 @@ Dialog = require Path.join __dirname, "..", "src", "dialog"
 
 module.exports = (robot) ->
 
-  robot.brain.data.goals = {} unless robot.brain.data.goals?
+  robot.brain.on "loaded", ->
+    robot.brain.data.goals = {} unless robot.brain.data.goals?
 
   congraturations = [
     "目標達成おめでとうございます！"
@@ -56,10 +57,14 @@ module.exports = (robot) ->
           achieved: 0
         }
         goals = robot.brain.data.goals[@.user].goals.concat _goals
+        expiration = moment()
+          .set("date", moment().get("date") + 1)
+          .startOf("day").set("hour", 3)
 
         _.extend robot.brain.data.goals[@.user], {
           goals: goals
           attempted: robot.brain.data.goals[@.user].attempted + _goals.length
+          expiration: expiration.format()
         }
         msg.send "ありがとうございました。現在設定中の目標は\n" +
           (_.map goals, (goal, i) ->
@@ -93,34 +98,88 @@ module.exports = (robot) ->
         attempted: 0
         achieved: 0
       }
+    robot.brain.data.goals[user].goals =
+      robot.brain.data.goals[user].goals or []
+
     _.extend robot.brain.data.goals[user], {
       expiration: expiration.format()
-      goal: goal
       attempted: robot.brain.data.goals[user].attempted + 1
     }
+    robot.brain.data.goals[user].goals.push goal
 
-    msg.send "OK。#{user}さんの今日の目標は「#{goal}」ですね。"
+    msg.send "OK。#{user}さんの今日の目標に「#{goal}」を設定しました。"
 
   robot.respond /今日の目標は(？)?$/i, (msg) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
-    unless data and moment(data.expiration).isAfter moment()
+    unless data and data.goals.length > 0 and
+        moment(data.expiration).isAfter moment()
       msg.send "#{user}さんの今日の目標は設定されておりません。"
       return
-    msg.send "#{user}さんの今日の目標は「#{data.goal}」です。"
+
+    goals = data.goals or []
+    goals_text = (_.map goals, (goal, i) ->
+      "#{i+1} : #{goal}"
+    ).join "\n"
+    msg.send "#{user}さんの今日の目標：\n" +
+      goals_text
 
   robot.respond /.*目標達成.*/i, (msg) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
-    unless data and moment(data.expiration).isAfter moment()
+    unless data and data.goals.length > 0 and
+        moment(data.expiration).isAfter moment()
       msg.send "#{user}さん、今日は目標設定してないですよ。"
       return
-    robot.brain.data.goals[user].achieved += 1
-    robot.brain.data.goals[user].expiration = moment().format()
-    msg.send "#{user}さんの目標は。。。\n「#{data.goal}」ですね。\n" +
-      msg.random congraturations
+
+    if data.goals.length is 1
+      goal = data.goals.pop()
+      robot.brain.data.goals[user].achieved += 1
+      robot.brain.data.goals[user].goals = []
+      msg.send "#{user}さんの目標は。。。\n「#{goal}」ですね。\n" +
+        msg.random congraturations
+      return
+
+    # achieving dialog
+    goals = data.goals
+    msg.send "どの目標を達成されましたか？番号を教えてください。\n" +
+      (_.map goals, (goal, i) ->
+        "#{i+1} : #{goal}"
+      ).join "\n"
+
+    dialog = new Dialog msg, (msg) ->
+      text = msg.envelope.message.text
+      if text.length is 0 or /^(help|ヘルプ|わからん)$/i.test text
+        msg.send "1 や 2、など達成した目標の番号をおっしゃってください。" +
+          "「ない」や「終わり」と言えば目標達成モードを終了します。\n" +
+          (_.map goals, (goal, i) ->
+            "#{i+1} : #{goal}"
+          ).join "\n"
+      else if text.match /(\d+)/i
+        index = parseInt(RegExp.$1, 10)-1
+        goal = robot.brain.data.goals[@.user].goals[index] or false
+        if goal
+          msg.send "「#{goal}」を達成したのですね！"
+          robot.brain.data.goals[@.user].goals =
+            _.without robot.brain.data.goals[@.user].goals, goal
+          robot.brain.data.goals[@.user].achieved += 1
+          # TODO: add goal to achieved_goals
+          if robot.brain.data.goals[@.user].goals.length > 0
+            msg.send "続けて達成した目標はありますか？\n" +
+              (_.map robot.brain.data.goals[@.user].goals, (goal, i) ->
+                "#{i+1} : #{goal}"
+              ).join "\n"
+          else
+            msg.send "全ての目標を達成したようです！\n" +
+              msg.random congraturations
+            @.end()
+      else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
+        msg.send "お疲れ様でした。"
+        @.end()
+
+    Dialog.listen robot
 
   robot.respond /.*達成度.*/i, (msg) ->
     user = msg.envelope.user.name
