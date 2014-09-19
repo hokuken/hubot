@@ -58,7 +58,7 @@ class Dialog
     @
 
   save: ()->
-    @robot.brain.data.dialogs |= {}
+    @robot.brain.data.dialogs = @robot.brain.data.dialogs or {}
     @robot.brain.data.dialogs?[@key] = @data
     @
 
