@@ -49,8 +49,20 @@ module.exports = (robot) ->
         msg.send "何かおっしゃってください。目標として設定します。" +
           "「もうない」や「終わり」と言えば目標設定モードを終了します。"
       else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
+        _goals = @.get("goals")
+        robot.brain.data.goals[@.user] = robot.brain.data.goals[@.user] or {
+          goals: []
+          attempted: 0
+          achieved: 0
+        }
+        goals = robot.brain.data.goals[@.user].goals.concat _goals
+
+        _.extend robot.brain.data.goals[@.user], {
+          goals: goals
+          attempted: robot.brain.data.goals[@.user].attempted + _goals.length
+        }
         msg.send "ありがとうございました。現在設定中の目標は\n" +
-          (_.map @.get("goals"), (goal, i) ->
+          (_.map goals, (goal, i) ->
             "#{i+1} : #{goal}"
           ).join "\n"
         @.end()
