@@ -1,7 +1,6 @@
 # Dialog class for hubot
 #
-# dialog = new Dialog msg # set username and room
-# dialog.listen callback # callback can use dialog as @ params are [msg]
+# dialog = new Dialog msg, callback # set username and room
 # dialog.set key, value # set data to robot.brain.data.dialogs[user/room]
 # dialog.end # end dialog and destroy data
 #
@@ -22,7 +21,7 @@ class Dialog
     Dialog.dialogs[Dialog.getKey user, room]
 
   @addDialog: (dialog) ->
-    Dialog.dialogs[Dialog.getKey dialog.user, dialog.room]
+    Dialog.dialogs[Dialog.getKey dialog.user, dialog.room] = dialog
 
   @deleteDialog: (user, room) ->
     delete Dialog.dialogs[Dialog.getKey user, room]
@@ -38,26 +37,34 @@ class Dialog
     @robot = msg.robot
     @user = msg.envelope.user.name
     @room = msg.envelope.room
-    @key = Dialog.getKey user, room
+    @key = Dialog.getKey @user, @room
     @data = {}
     @listen callback
+    Dialog.addDialog @
 
   set: (key, value) ->
     @data[key] = value
-    @
+    @save()
 
   get: (key) ->
     @data[key]
+
+  reset: ->
+    @data = {}
+    @save
 
   listen: (callback) ->
     @callback = callback
     @
 
-  save: ->
+  save: ()->
     @robot.brain.data.dialogs?[@key] = @data
+    @
 
   end: ->
     Dialog.deleteDialog @user, @room
     @robot.brain.data.dialogs?[@key] = null
     delete @robot.brain.data.dialogs?[@key]
     @user = @room = @data = @callback = @callback = null
+
+module.exports = Dialog
