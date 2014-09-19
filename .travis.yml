@@ -7,7 +7,7 @@ deploy:
   provider: heroku
   api_key:
     secure: QV8+oinaoWT5hWIdMfMnl16vWClainu8CimL40GQwbn3obKjvQj3KSX++iNgAO+uucvdwmplHEics7NaYFTXldxyERTuB5WSuSwowzAlWgYwvR8G4X5+1vjrZ/RLF8zTETqegOX1xaIOqhLBcqK7rC40a+WAhX1hxO7I4QSaCQI=
-  app: big2men-hokuken-slackbot
+  app: hokuken-hubot
   on:
     repo: hokuken/hubot
   strategy: git
