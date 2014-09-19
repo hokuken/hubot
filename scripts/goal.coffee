@@ -9,6 +9,9 @@
 
 moment = require "moment"
 _ = require "underscore"
+Path = require "path"
+Dialog = require Path.join __dirname, "..", "src", "dialog"
+
 
 module.exports = (robot) ->
 
@@ -38,6 +41,33 @@ module.exports = (robot) ->
     "e67e22"
     "e74c3c"
   ]
+
+  robot.respond /目標設定/i, (msg) ->
+    dialog = new Dialog msg, (msg) ->
+      text = msg.envelope.message.text
+      if text.length is 0 or /^(help|ヘルプ|わからん)$/i.test text
+        msg.send "何かおっしゃってください。目標として設定します。" +
+          "「もうない」や「終わり」と言えば目標設定モードを終了します。"
+      else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
+        msg.send "ありがとうございました。現在設定中の目標は\n" +
+          (_.map @.get("goals"), (goal, i) ->
+            "#{i+1} : #{goal}"
+          ).join "\n"
+        @.end()
+      else
+        goals = @.get("goals") or []
+        goals.push text
+        @.set "goals", goals
+        msg.send "「#{text}」を目標として設定しました。" +
+          "もうなければ、「ない」とか「終わり」とか言ってくださいね。"
+
+    goals = dialog.get("goals") or []
+    dialog.set "goals", goals
+    msg.send "#{msg.envelope.user.name}さんの目標を教えてください！\n" +
+      "なければ、「ない」とか「終わり」とか言ってくださいね。"
+
+    #Dialog.addDialog dialog
+    Dialog.listen robot
 
   robot.respond /今日の目標は(?!？)([\s\S]+)/i, (msg) ->
     goal = msg.match[1]
