@@ -2,9 +2,10 @@
 #   Set the goal of today
 #
 # Commands:
+#   hubot 目標設定 - 対話モードで目標設定を行います。
 #   hubot 今日の目標は〜 - 今日の目標を設定します。期限は同日午前3時です。
 #   hubot 今日の目標は？ - 今日の目標を表示します。
-#   hubot 目標達成 - 目標を達成したことを hubot に知らせます。
+#   hubot 目標達成 - 対話モードで目標を達成したことを hubot に知らせます。
 #   hubot 達成度 - 目標の達成度を hubot に聞きます。
 
 moment = require "moment"
@@ -34,6 +35,13 @@ module.exports = (robot) ->
     "あ、あなたが神か。。 :innocent:" #=100
   ]
 
+  cheers = [
+    "頑張りましょう！"
+    "ナイスチャレンジ！！"
+    "達成の報告、お待ちしてます (￣ー￣)ﾆﾔﾘ"
+    "がんばっていきまっしょい！"
+  ]
+
   colors = [
     "1abc9c"
     "2ecc71"
@@ -46,7 +54,7 @@ module.exports = (robot) ->
   robot.respond /目標設定/i, (msg) ->
     dialog = new Dialog msg, (msg) ->
       text = msg.envelope.message.text
-      if text.length is 0 or /^(help|ヘルプ|わからん)$/i.test text
+      if /^(help|ヘルプ|わからん)$/i.test text
         msg.send "何かおっしゃってください。目標として設定します。" +
           "「もうない」や「終わり」と言えば目標設定モードを終了します。"
       else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
@@ -57,6 +65,7 @@ module.exports = (robot) ->
           achieved: 0
         }
         goals = robot.brain.data.goals[@.user].goals.concat _goals
+        goals = _.uniq goals
         expiration = moment()
           .set("date", moment().get("date") + 1)
           .startOf("day").set("hour", 3)
@@ -66,21 +75,35 @@ module.exports = (robot) ->
           attempted: robot.brain.data.goals[@.user].attempted + _goals.length
           expiration: expiration.format()
         }
-        msg.send "ありがとうございました。現在設定中の目標は\n" +
-          (_.map goals, (goal, i) ->
-            "#{i+1} : #{goal}"
-          ).join "\n"
+        msg.send "ありがとうございました。現在設定中の目標：\n" +
+          goalsToString(goals) + "\n\n" +
+          "期限は明日午前3時までです。" + msg.random cheers
         @.end()
       else
         goals = @.get("goals") or []
         goals.push text
         @.set "goals", goals
-        msg.send "「#{text}」を目標として設定しました。" +
+        msg.send "「#{text}」を目標として設定しました。現在設定中の目標：\n" +
+          goalsToString(goals) + "\n" +
           "もうなければ、「ない」とか「終わり」とか言ってくださいね。"
 
-    goals = dialog.get("goals") or []
+    user = msg.envelope.user.name
+    data = robot.brain.data.goals[user] or null
+    unless data
+      robot.brain.data.goals[user] = {
+        goals: []
+        achieved_goals: []
+        attempted: 0
+        expiration: 0
+      }
+    unless data.goals.length > 0 and
+        moment(data.expiration).isAfter moment()
+      robot.brain.data.goals[user].goals = []
+      robot.brain.data.goals[user].achieved_goals = []
+
+    goals = data.goals or []
     dialog.set "goals", goals
-    msg.send "#{msg.envelope.user.name}さんの目標を教えてください！\n" +
+    msg.send "#{msg.envelope.user.name}さんの今日の目標を教えてください！\n" +
       "なければ、「ない」とか「終わり」とか言ってくださいね。"
 
     #Dialog.addDialog dialog
@@ -100,6 +123,8 @@ module.exports = (robot) ->
       }
     robot.brain.data.goals[user].goals =
       robot.brain.data.goals[user].goals or []
+    robot.brain.data.goals[user].achieved_goals =
+      robot.brain.data.goals[user].achieved_goals or []
 
     _.extend robot.brain.data.goals[user], {
       expiration: expiration.format()
@@ -107,7 +132,8 @@ module.exports = (robot) ->
     }
     robot.brain.data.goals[user].goals.push goal
 
-    msg.send "OK。#{user}さんの今日の目標に「#{goal}」を設定しました。"
+    msg.send "OK。#{user}さんの今日の目標に「#{goal}」を設定しました。\n" +
+      msg.random cheers
 
   robot.respond /今日の目標は(？)?$/i, (msg) ->
     user = msg.envelope.user.name
@@ -115,15 +141,14 @@ module.exports = (robot) ->
 
     unless data and data.goals.length > 0 and
         moment(data.expiration).isAfter moment()
-      msg.send "#{user}さんの今日の目標は設定されておりません。"
+      msg.send "#{user}さんの今日の目標は設定されておりません。\n" +
+        goalsToString [], data.achieved_goals
       return
 
     goals = data.goals or []
-    goals_text = (_.map goals, (goal, i) ->
-      "#{i+1} : #{goal}"
-    ).join "\n"
+    achieved_goals = data.achieved_goals or []
     msg.send "#{user}さんの今日の目標：\n" +
-      goals_text
+      goalsToString goals, achieved_goals
 
   robot.respond /.*目標達成.*/i, (msg) ->
     user = msg.envelope.user.name
@@ -138,43 +163,65 @@ module.exports = (robot) ->
       goal = data.goals.pop()
       robot.brain.data.goals[user].achieved += 1
       robot.brain.data.goals[user].goals = []
+      robot.brain.data.goals[user].achieved_goals.push goal
       msg.send "#{user}さんの目標は。。。\n「#{goal}」ですね。\n" +
+        goalsToString [], robot.brain.data.goals[user].achieved_goals
         msg.random congraturations
       return
 
     # achieving dialog
     goals = data.goals
-    msg.send "どの目標を達成されましたか？番号を教えてください。\n" +
-      (_.map goals, (goal, i) ->
-        "#{i+1} : #{goal}"
-      ).join "\n"
+    msg.send "どの目標を達成されましたか？番号を教えてください。 [番号/ない]\n" +
+      goalsToString goals
 
     dialog = new Dialog msg, (msg) ->
       text = msg.envelope.message.text
       if text.length is 0 or /^(help|ヘルプ|わからん)$/i.test text
         msg.send "1 や 2、など達成した目標の番号をおっしゃってください。" +
           "「ない」や「終わり」と言えば目標達成モードを終了します。\n" +
-          (_.map goals, (goal, i) ->
-            "#{i+1} : #{goal}"
-          ).join "\n"
-      else if text.match /(\d+)/i
-        index = parseInt(RegExp.$1, 10)-1
-        goal = robot.brain.data.goals[@.user].goals[index] or false
-        if goal
-          msg.send "「#{goal}」を達成したのですね！"
+          goalsToString goals
+      else if text.match /\d+|\*/i
+        # only num: 1
+        # nums: 1, 2, 3
+        # span: 1-3
+        # all: *
+        goals = @robot.brain.data.goals[@.user].goals
+        indexes = []
+        if text.match /\*/i
+          indexes = _.range 0, goals.length
+        else if text.match /\d+(\s+|,\s*)\d+/i
+          indexes = _.map text.split(/\s+|,\s*/i)
+            , (num) ->
+              parseInt(num, 10)-1
+        else if text.match /(\d+)-(\d+)/i
+          start = parseInt(RegExp.$1, 10)-1
+          stop = parseInt(RegExp.$2, 10)
+          [start, stop] = [stop, start] if stop < start
+          indexes = _.range start, stop
+        else if text.match /(\d+)/i
+          indexes = [parseInt(RegExp.$1, 10)-1]
+
+        achieved_goals = _.filter goals, (goal, i) ->
+          i in indexes
+
+        res = ""
+        for goal in achieved_goals
+          res += "「#{goal}」を達成したのですね！\n"
+          robot.brain.data.goals[@.user].achieved += 1
+
           robot.brain.data.goals[@.user].goals =
             _.without robot.brain.data.goals[@.user].goals, goal
-          robot.brain.data.goals[@.user].achieved += 1
-          # TODO: add goal to achieved_goals
-          if robot.brain.data.goals[@.user].goals.length > 0
-            msg.send "続けて達成した目標はありますか？\n" +
-              (_.map robot.brain.data.goals[@.user].goals, (goal, i) ->
-                "#{i+1} : #{goal}"
-              ).join "\n"
-          else
-            msg.send "全ての目標を達成したようです！\n" +
-              msg.random congraturations
-            @.end()
+          robot.brain.data.goals[@.user].achieved_goals.push goal
+
+        msg.send res
+
+        if robot.brain.data.goals[@.user].goals.length > 0
+          msg.send "続けて達成した目標はありますか？ [番号/ない]\n" +
+            goalsToString robot.brain.data.goals[@.user].goals
+        else
+          msg.send "全ての目標を達成したようです！\n" +
+            msg.random congraturations
+          @.end()
       else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
         msg.send "お疲れ様でした。"
         @.end()
@@ -213,7 +260,26 @@ module.exports = (robot) ->
           review + "\n" +
           chart_url
 
+  robot.brain.on "loaded", ->
+    for user, data of robot.brain.data.goals
+      if data.goal
+        goal = data.goal
+        data.goals = data.goals or []
+        data.goals.push goal
+        delete robot.brain.data.goals[user].goal
+      unless data.achieved_goals
+        robot.brain.data.goals[user].achieved_goals = []
 
+  goalsToString = (goals, achieved_goals) ->
+    goals_text = (_.map goals, (goal, i) ->
+      "#{i+1} : #{goal}"
+    ).join "\n"
+
+    achieved_goals_text = (_.map achieved_goals, (goal) ->
+      "☑ : #{goal}"
+    ).join "\n"
+
+    goals_text + "\n" + achieved_goals_text
 
   getRate = (achieved, attempted) ->
     Math.round achieved / attempted * 100
