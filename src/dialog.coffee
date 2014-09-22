@@ -8,6 +8,8 @@
 # Dialog.addDialog dialog
 # Dialog.deleteDialog user, room
 
+md5 = require "MD5"
+
 class Dialog
 
   @dialogs = {}
@@ -28,8 +30,10 @@ class Dialog
 
   @listen: (robot) ->
     return false if Dialog.listened
-    robot.hear /.*/i, (msg) ->
+    robot.hear /./i, (msg) ->
+
       dialog = Dialog.getDialog msg.envelope.user.name, msg.envelope.room
+      return if dialog.startMsgMd5 is md5 "#{dialog.key}:#{msg.envelope.message.text}"
       dialog?.callback.call dialog, msg
     Dialog.listened = true
 
@@ -40,6 +44,7 @@ class Dialog
     @key = Dialog.getKey @user, @room
     @data = {}
     @listen callback
+    @startMsgMd5 = md5 "#{@key}:#{msg.envelope.message.text}"
     Dialog.addDialog @
 
   set: (key, value) ->
