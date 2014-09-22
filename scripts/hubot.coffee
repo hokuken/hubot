@@ -35,7 +35,7 @@ module.exports = (robot) ->
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
         "バージョンは #{pkg.version} です！\n\n" +
         "対話モードで複数の目標の設定ができるようになりました！\n" +
-        "`hubot 目標設定`と話しかけてくださいね。"
+        "`#{robot.name} 目標設定`と話しかけてくださいね。"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
       robot.send {room: room}, message
     res.end "OK"
