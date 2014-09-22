@@ -148,7 +148,8 @@ module.exports = (robot) ->
     goals = data.goals or []
     achieved_goals = data.achieved_goals or []
     msg.send "#{user}さんの今日の目標：\n" +
-      goalsToString goals, achieved_goals
+      goalsToString(goals, achieved_goals) + "\n\n" +
+      "終わったら `#{robot.name} 目標達成`と話しかけてください。"
 
   robot.respond /.*目標達成.*/i, (msg) ->
     user = msg.envelope.user.name
