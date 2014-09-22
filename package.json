@@ -31,6 +31,7 @@
     "moment": "^2.8.3",
     "quiche": "0.0.8",
     "request": "^2.44.0",
+    "semver": "^4.0.0",
     "tiqav.js": "~0.1.4",
     "underscore": "^1.7.0",
     "underscore.string": "^2.3.3"
