@@ -8,6 +8,7 @@
 #   hubot version - 現在のバージョンを表示
 
 Path = require 'path'
+Semver = require 'semver'
 
 module.exports = (robot) ->
 
@@ -24,8 +25,17 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
-    message = "おまえら新しい俺様がデプロイされたぞこらぁ！\n" +
-      "バージョンは #{pkg.version} だぞたここらぁ！"
-    room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
-    robot.send {room: room}, message
+    unless robot.brain.data.hubot
+      robot.brain.data.hubot = {
+        lastVersion: pkg.version
+      }
+      return
+
+    if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
+      message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
+        "バージョンは #{pkg.version} です！\n\n" +
+        "対話モードで複数の目標の設定ができるようになりました！\n" +
+        "`hubot 目標設定`と話しかけてくださいね。"
+      room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
+      robot.send {room: room}, message
     res.end "OK"
