@@ -12,7 +12,17 @@ Semver = require 'semver'
 
 module.exports = (robot) ->
 
-  pkg = require Path.join __dirname, '..', 'package.json'
+  messages = [
+    "(´-`).oO(ここ、俺の部屋なんやけどなー)"
+    "あー、オイル美味い (*´▽｀)◇ゞゴクゴク"
+    "( ´ ▽ ` )ﾉ ﾀﾀﾞｲﾏｧ 出かけてました！"
+    "ヽ(;´Д`)ノ練習ﾔﾒﾃ～ "
+  ]
+
+  robot.hear /./i, (msg) ->
+    return unless msg.envelope.room is "#hubot"
+    return if Math.random() * 10 > 2
+    msg.send msg.random messages
 
   robot.respond /version/i, (msg) ->
     msg.send "#{pkg.version} (hubot: #{robot.version})"
@@ -30,6 +40,8 @@ module.exports = (robot) ->
         lastVersion: pkg.version
       }
       return
+
+    pkg = require Path.join __dirname, '..', 'package.json'
 
     console.log "deployed: #{pkg.version}, current: #{robot.brain.data.hubot.lastVersion}"
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
