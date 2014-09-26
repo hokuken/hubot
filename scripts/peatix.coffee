@@ -21,6 +21,14 @@ module.exports = (robot) ->
      process.env.PEATIX_CRAWLER_URL
 
   class PeatixEvent
+
+    @find: (id, callback) ->
+      peatix_crawler_url = process.env.PEATIX_CRAWLER_URL
+      peatix_crawler_token = process.env.PEATIX_CRAWLER_API_TOKEN
+      url = "#{peatix_crawler_url}/api/events/" + id +
+        "?token=#{peatix_crawler_token}"
+      request url, callback
+
     constructor: (data) ->
       @data = data
 
@@ -102,3 +110,36 @@ module.exports = (robot) ->
         Dialog.listen robot
       else
         msg.send "失敗しました。"
+
+  robot.respond /イベントフォロー/i, (msg) ->
+    msg.send "イベント情報を問い合わせ中です。。。"
+    peatix_crawler_url = process.env.PEATIX_CRAWLER_URL
+    peatix_crawler_token = process.env.PEATIX_CRAWLER_API_TOKEN
+    url = "#{peatix_crawler_url}/api/passages" +
+      "?token=#{peatix_crawler_token}"
+    request url, (err, res, body) ->
+      if !err and res.statusCode is 200
+        should_follow_cnt = 0
+        passages = JSON.parse body
+        _.each(passages, (p) ->
+          switch p.passage
+            when 6
+              should_follow_cnt++
+              PeatixEvent.find p.event, (err, res, body) ->
+                if !err and res.statusCode is 200
+                  event = new PeatixEvent JSON.parse body
+                  msg.send "開催から6日経過したイベントがあります。" +
+                    "そろそろフォローメールを準備しては？\n" +
+                    event.toString()
+            when 29
+              should_follow_cnt++
+              PeatixEvent.find p.event, (err, res, body) ->
+                if !err and res.statusCode is 200
+                  event = new PeatixEvent JSON.parse body
+                  msg.send "開催から約1ヶ月経過したイベントがあります。" +
+                    "フィードバックもらいます？\n" +
+                    event.toString()
+        )
+
+        unless should_follow_cnt > 0
+          msg.send "本日フォローが必要なイベントは1件もありませんでした。"
