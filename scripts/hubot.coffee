@@ -35,13 +35,13 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
+    pkg = require Path.join __dirname, '..', 'package.json'
+
     unless robot.brain.data.hubot
       robot.brain.data.hubot = {
         lastVersion: pkg.version
       }
       return
-
-    pkg = require Path.join __dirname, '..', 'package.json'
 
     console.log "deployed: #{pkg.version}, current: #{robot.brain.data.hubot.lastVersion}"
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
