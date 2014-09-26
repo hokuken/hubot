@@ -52,8 +52,11 @@ module.exports = (robot) ->
         buffer += "（#{@pastString()}） "
         buffer += "#{@data.dashboard_uri}"
       else
+        datetime = moment(@data.datetime).format("YYYY年M月D日")
+        weekday = "日月火水木金土".split('')[moment(@data.datetime).day()]
+        datetime += "（#{weekday}）"
         buffer =  "*#{@data.name}*\n"
-        buffer += "開催日：#{@data.datetime} （#{@pastString()}）\n"
+        buffer += "開催日：#{datetime} （#{@pastString()}）\n"
         buffer += "チケット：#{@data.seats_sold} / #{@data.seats_total} \n"
         buffer += "売り上げ：#{@incomeToString()}\n"
         buffer += "管理画面：#{@data.dashboard_uri}\n"
