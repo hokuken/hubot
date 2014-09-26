@@ -1,3 +1,6 @@
+# Description:
+#   Dialog test
+
 Path = require "path"
 Dialog = require Path.join __dirname, "..", "src", "dialog"
 
