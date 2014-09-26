@@ -25,6 +25,7 @@ module.exports = (robot) ->
     msg.send msg.random messages
 
   robot.respond /version/i, (msg) ->
+    pkg = require Path.join __dirname, '..', 'package.json'
     msg.send "#{pkg.version} (hubot: #{robot.version})"
 
   robot.router.post "/hubot/deployed", (req, res) ->
@@ -43,7 +44,6 @@ module.exports = (robot) ->
       }
       return
 
-    console.log "deployed: #{pkg.version}, current: #{robot.brain.data.hubot.lastVersion}"
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
       robot.brain.data.hubot.lastVersion = pkg.version
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
