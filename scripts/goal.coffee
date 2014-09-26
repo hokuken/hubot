@@ -51,13 +51,13 @@ module.exports = (robot) ->
     "e74c3c"
   ]
 
-  robot.respond /目標設定/i, (msg) ->
+  setGoals = (msg) ->
     dialog = new Dialog msg, (msg) ->
       text = msg.envelope.message.text
       if /^(help|ヘルプ|わからん)$/i.test text
         msg.send "何かおっしゃってください。目標として設定します。" +
           "「もうない」や「終わり」と言えば目標設定モードを終了します。"
-      else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
+      else if /^((もう)?ない|(終|お)わり|おしまい|none|nothing|done|finish|end)$/i.test text
         _goals = @.get("goals")
         robot.brain.data.goals[@.user] = robot.brain.data.goals[@.user] or {
           goals: []
@@ -90,7 +90,7 @@ module.exports = (robot) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
     unless data
-      robot.brain.data.goals[user] = {
+      data = robot.brain.data.goals[user] = {
         goals: []
         achieved_goals: []
         attempted: 0
@@ -109,7 +109,7 @@ module.exports = (robot) ->
     #Dialog.addDialog dialog
     Dialog.listen robot
 
-  robot.respond /今日の目標は(?!？)([\s\S]+)/i, (msg) ->
+  setAGoal = (msg) ->
     goal = msg.match[1]
     user = msg.envelope.user.name
     expiration = moment()
@@ -135,7 +135,7 @@ module.exports = (robot) ->
     msg.send "OK。#{user}さんの今日の目標に「#{goal}」を設定しました。\n" +
       msg.random cheers
 
-  robot.respond /今日の目標は(？)?$/i, (msg) ->
+  sayGoals = (msg) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
@@ -151,7 +151,7 @@ module.exports = (robot) ->
       goalsToString(goals, achieved_goals) + "\n\n" +
       "終わったら `#{robot.name} 目標達成`と話しかけてください。"
 
-  robot.respond /.*目標達成.*/i, (msg) ->
+  achieveGoals = (msg) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
 
@@ -223,13 +223,13 @@ module.exports = (robot) ->
           msg.send "全ての目標を達成したようです！\n" +
             msg.random congraturations
           @.end()
-      else if /^((もう)?ない|(終|お)わり|おしまい)$/i.test text
+      else if /^((もう)?ない|(終|お)わり|おしまい|none|nothing|done|finish|end)$/i.test text
         msg.send "お疲れ様でした。"
         @.end()
 
     Dialog.listen robot
 
-  robot.respond /.*達成度.*/i, (msg) ->
+  getAchievement = (msg) ->
     user = msg.envelope.user.name
     data = robot.brain.data.goals[user] or null
     embed_user = user
@@ -261,6 +261,57 @@ module.exports = (robot) ->
           review + "\n" +
           chart_url
 
+  resetData = (msg) ->
+    user = msg.envelope.user.name
+    data = robot.brain.data.goals[user] or null
+    embed_user = user
+
+    unless data and data.attempted
+      embed_user = null
+      msg.send "#{user}さんのデータはありませんよ"
+      return
+
+    msg.send "#{user}さんのデータをリセットしてもよろしいですか？[y/N]"
+    dialog = new Dialog msg, (msg) ->
+      text = msg.envelope.message.text
+      if /^(y|はい|よし|よろし)$/i.test text
+        delete robot.brain.data.goals[user]
+        msg.send "完全にリセットしました。"
+      @end
+    Dialog.listen robot
+
+  # English
+  robot.respond /goals/i, (msg) ->
+    text = msg.envelope.message.text
+    if /goals$/i.test text
+      sayGoals msg
+    else if /goals:set$/i.test text
+      setGoals msg
+    else if /goals:(achieve|done)$/i.test text
+      achieveGoals msg
+    else if /goals:(achievement|score)$/i.test text
+      getAchievement msg
+    else if /goals:(reset|clean)$/i.test text
+      resetData msg
+    else
+      msg.send "command #{text} is not found\n" +
+        "goals - #{robot.name} say your goals\n" +
+        "goals:set - set your goals\n" +
+        "goals:done - achieve your goals\n" +
+        "goals:score - show our achievement\n" +
+        "goals:reset - reset your goals data"
+
+  # Japanese
+  robot.respond /目標設定/i, setGoals
+
+  robot.respond /今日の目標は(?!？)([\s\S]+)/i, setAGoal
+
+  robot.respond /今日の目標は(？)?$/i, sayGoals
+
+  robot.respond /.*目標達成.*/i, achieveGoals
+
+  robot.respond /.*達成度.*/i, getAchievement
+
   robot.brain.on "loaded", ->
     for user, data of robot.brain.data.goals
       if data.goal
@@ -283,7 +334,10 @@ module.exports = (robot) ->
     goals_text + "\n" + achieved_goals_text
 
   getRate = (achieved, attempted) ->
-    Math.round achieved / attempted * 100
+    if attempted > 0
+      Math.round achieved / attempted * 100
+    else
+      0
 
   getBarCharUrl = (user_rates, embed_user) ->
     Quiche = require "quiche"
