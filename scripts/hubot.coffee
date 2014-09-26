@@ -36,8 +36,8 @@ module.exports = (robot) ->
       robot.brain.data.hubot.lastVersion = pkg.version
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
         "バージョンは #{pkg.version} です！\n\n" +
-        "対話モードで複数の目標の設定ができるようになりました！\n" +
-        "`#{robot.name} 目標設定` と話しかけてくださいね。"
+        "Peatix のイベント情報が表示できるようになりました！\n" +
+        "`#{robot.name} イベント情報` と話しかけてくださいね。"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
       robot.send {room: room}, message
     res.end "OK"
