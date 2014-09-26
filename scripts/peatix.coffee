@@ -91,9 +91,11 @@ module.exports = (robot) ->
             if events[index]
               event = events[index]
               msg.send event.toString()
-            msg.send "他には？\n" +
-              eventsToString(events) + "\n" +
-              "何番のイベントの詳細を見ますか？[番号/見ない]"
+            setTimeout ->
+              msg.send "他には？\n" +
+                eventsToString(events) + "\n" +
+                "何番のイベントの詳細を見ますか？[番号/見ない]"
+            , 3000
           else if /^((見)?ない|(終|お)わり|おしまい)$/i.test text
             msg.send "またご利用ください。"
             @end
