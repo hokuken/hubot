@@ -31,6 +31,7 @@ module.exports = (robot) ->
       }
       return
 
+    console.log "deployed: #{pkg.version}, current: #{robot.brain.data.hubot.lastVersion}"
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
       robot.brain.data.hubot.lastVersion = pkg.version
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
