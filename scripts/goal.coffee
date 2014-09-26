@@ -166,7 +166,7 @@ module.exports = (robot) ->
       robot.brain.data.goals[user].goals = []
       robot.brain.data.goals[user].achieved_goals.push goal
       msg.send "#{user}さんの目標は。。。\n「#{goal}」ですね。\n" +
-        goalsToString [], robot.brain.data.goals[user].achieved_goals
+        goalsToString([], robot.brain.data.goals[user].achieved_goals) + "\n" +
         msg.random congraturations
       return
 
