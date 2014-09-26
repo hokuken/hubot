@@ -20,7 +20,7 @@ module.exports = (robot) ->
   ]
 
   robot.hear /./i, (msg) ->
-    return unless msg.envelope.room is "#hubot"
+    return unless msg.envelope.room is "hubot"
     return if Math.random() * 10 > 2
     msg.send msg.random messages
 
