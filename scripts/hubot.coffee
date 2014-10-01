@@ -52,5 +52,5 @@ module.exports = (robot) ->
         "Peatix のイベント情報が表示できるようになりました！\n" +
         "`#{robot.name} イベント情報` と話しかけてくださいね。"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
-      robot.send {room: room}, message
+      #robot.send {room: room}, message
     res.end "OK"
