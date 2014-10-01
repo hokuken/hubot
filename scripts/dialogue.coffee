@@ -84,14 +84,6 @@ module.exports = (robot) ->
 
     org_receive.bind(robot)(message)
 
-  robot.respond /dialogue/i, (msg) ->
-    user = msg.envelope.user.name
-    room = msg.envelope.user.room
-
-    robot.emit "dialogue:start", user, room, (message) ->
-      robot.send {user: @user, room: @room}, "wahaha"
-      @end()
-
   # backword compatibility
   robot.brain.on "loaded", ->
     if robot.brain.data.dialogs?
