@@ -13,7 +13,6 @@ moment = require 'moment'
 _ = require "underscore"
 numeral = require "numeral"
 Path = require "path"
-Dialog = require Path.join __dirname, "..", "src", "dialog"
 
 module.exports = (robot) ->
 
@@ -92,22 +91,21 @@ module.exports = (robot) ->
         msg.send "#{events.length}件のイベントが見つかりました。\n" +
           eventsToString(events) + "\n" +
           "何番のイベントの詳細を見ますか？[番号/見ない]"
-        dialog = new Dialog msg, (msg) ->
-          text = msg.envelope.message.text
+        robot.emit "dialogue:start", msg.envelope.user, (message) ->
+          text = message.text
           if /(\d+)/i.test text
             index = parseInt(RegExp.$1, 10)-1
             if events[index]
               event = events[index]
-              msg.send event.toString()
-            setTimeout ->
-              msg.send "他には？\n" +
+              @respond event.toString()
+            setTimeout =>
+              @respond "他には？\n" +
                 eventsToString(events) + "\n" +
                 "何番のイベントの詳細を見ますか？[番号/見ない]"
             , 3000
           else if /^((見)?ない|(終|お)わり|おしまい)$/i.test text
-            msg.send "またご利用ください。"
+            @respond "またご利用ください。"
             @end
-        Dialog.listen robot
       else
         msg.send "失敗しました。"
 
