@@ -313,16 +313,6 @@ module.exports = (robot) ->
 
   robot.respond /.*達成度.*/i, getAchievement
 
-  robot.brain.on "loaded", ->
-    for user, data of robot.brain.data.goals
-      if data.goal
-        goal = data.goal
-        data.goals = data.goals or []
-        data.goals.push goal
-        delete robot.brain.data.goals[user].goal
-      unless data.achieved_goals
-        robot.brain.data.goals[user].achieved_goals = []
-
   goalsToString = (goals, achieved_goals) ->
     goals_text = (_.map goals, (goal, i) ->
       "#{i+1} : #{goal}"
