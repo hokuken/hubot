@@ -8,36 +8,40 @@ module.exports = (robot) ->
 
   # Dialogue class for hubot
   #
-  # dialogue = new Dialogue msg, callback # set username and room
+  # dialogue = new Dialogue user, callback # set username and room
   # dialogue.set key, value # set data to robot.brain.data.dialogues[username/room]
   # dialogue.end # end dialogue and destroy data
   #
-  # Dialogue.get username, room
+  # Dialogue.get user
   # Dialogue.add dialogue
-  # Dialogue.delete username, room
+  # Dialogue.delete user or dialogue
   class Dialogue
 
     @dialogues = {}
 
     @listened = false
 
-    @getKey: (username, room) ->
-      "#{username}/#{room}"
+    @getKey: (user) ->
+      "#{user.name}/#{user.room}"
 
-    @get: (username, room) ->
-      Dialogue.dialogues[Dialogue.getKey username, room]
+    @get: (user) ->
+      Dialogue.dialogues[Dialogue.getKey user.name, user.room]
 
     @add: (dialogue) ->
-      Dialogue.dialogues[Dialogue.getKey dialogue.username, dialogue.room] = dialogue
+      Dialogue.dialogues[dialogue.key] = dialogue
 
-    @delete: (username, room) ->
-      delete Dialogue.dialogues[Dialogue.getKey username, room]
+    @delete: (user) ->
+      if user instanceof Dialogue
+        key = user.key
+      else
+        key = Dialogue.getKey user.name, user.room
+      delete Dialogue.dialogues[key]
 
     @listen: util.deprecate((->), "Dialogue.listen is deprecated.")
 
-    constructor: (username, room, callback) ->
-      @username = username
-      @room = room
+    constructor: (user, callback) ->
+      @username = user.name
+      @room = user.room
       @key = Dialogue.getKey @username, @room
       @data = {}
       @listen callback
@@ -67,7 +71,7 @@ module.exports = (robot) ->
       @
 
     end: ->
-      Dialogue.delete @username, @room
+      Dialogue.delete @
       robot.brain.data.dialogues?[@key] = null
       delete robot.brain.data.dialogues?[@key]
       @username = @room = @data = @callback = @callback = null
@@ -75,9 +79,7 @@ module.exports = (robot) ->
   # extend robot.receive
   org_receive = robot.receive
   robot.receive = (message) ->
-    username = message.user?.name
-    room = message.user?.room
-    dialogue = Dialogue.get username, room
+    dialogue = Dialogue.get message.user
     dialogue?.callback.call dialogue, message
 
     org_receive.bind(robot)(message)
@@ -97,11 +99,9 @@ module.exports = (robot) ->
       delete robot.brain.data.dialogs
     robot.brain.data.dialogues = robot.brain.data.dialogues or {}
 
-  robot.on "dialogue:start", (username, room, callback) ->
-    new Dialogue username, room, callback
+  robot.on "dialogue:start", (user, callback) ->
+    new Dialogue user, callback
 
-  robot.on "dialogue:set", (msg, key, value) ->
-    username = msg.envelope.user.name
-    room = msg.envelope.room
-    dialogue = Dialogue.get username, room
+  robot.on "dialogue:set", (user, key, value) ->
+    dialogue = Dialogue.get user
     dialogue?.set key, value
