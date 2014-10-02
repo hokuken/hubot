@@ -22,17 +22,15 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
-    console.log data.headers
     messageId = data.headers['Message-ID']
-    host = messageId.split(/@/)[1]
-    console.log "ID: #{messageId}, host: #{host}"
+    host = messageId.replace(/^<|>$/g, "").split(/@/)[1]
 
     switch host
       when "disqus.net"
+        robot.logger.info "Disqus mail parser catched"
         parser = new DisqusMailParser data
         # for Slack
         [message, data] = parser.createCustomMessage()
-        robot.logger.info "Disqus mail parser catched"
         post message, data
       else
         res.writeHead 404
