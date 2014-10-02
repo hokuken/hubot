@@ -22,6 +22,7 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
+    console.log data.headers
     messageId = data.headers['Message-ID']
     host = messageId.split(/@/)[1]
     console.log "ID: #{messageId}, host: #{host}"
