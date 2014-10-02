@@ -22,12 +22,11 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
-    messageId = data.headers['Message-ID']
-    host = messageId.replace(/^<|>$/g, "").split(/@/)[1]
-    console.log data.envelope
+    from = data.headers.From.match(/<([^>]+)>$/)[1]
+    console.log "from: #{from}"
 
-    switch host
-      when "disqus.net"
+    switch from
+      when "notifications@disqus.net"
         robot.logger.info "Disqus mail parser catched"
         parser = new DisqusMailParser data
         # for Slack
