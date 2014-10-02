@@ -42,7 +42,7 @@ module.exports = (robot) ->
           for domain, i in result.domains?
             title = "Domain"
             title += "#{i+1}" if result.domains?.length > 1
-            attachments.fields.push {
+            attachment.fields.push {
               title: title
               value: domain
               short: false
