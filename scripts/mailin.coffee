@@ -22,10 +22,11 @@ module.exports = (robot) ->
       res.end "NG"
       return
 
-    from = data.envelope?.from
+    messageId = data.headers['Message-ID']
+    host = messageId.split(/@/)[1]
 
-    switch from
-      when "notifications@disqus.net"
+    switch host
+      when "disqus.net"
         parser = new DisqusMailParser data
         # for Slack
         [message, data] = parser.createCustomMessage()
@@ -39,7 +40,6 @@ module.exports = (robot) ->
     res.end "OK"
 
   post = (message, attachments...) ->
-    console.log message
     robot.logger.info "Post to hubot hook via mailin script"
 
     path = "/services/hooks/hubot"
