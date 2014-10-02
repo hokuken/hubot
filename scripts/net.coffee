@@ -25,7 +25,7 @@ module.exports = (robot) ->
           "Domains:\n" + result.domains.join("\n") if result.domains?
 
         if robot.adapter.post?
-          message = {room: msg.envelope.user.room}
+          message = {room: "#" + msg.envelope.user.room}
           attachment = {
             pretext: "*#{host}*"
             fallback: text
