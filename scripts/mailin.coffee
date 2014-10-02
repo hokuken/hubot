@@ -39,6 +39,7 @@ module.exports = (robot) ->
     res.end "OK"
 
   post = (message, attachments...) ->
+    console.log message
     robot.logger.info "Post to hubot hook via mailin script"
 
     path = "/services/hooks/hubot"
