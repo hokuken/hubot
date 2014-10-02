@@ -23,6 +23,7 @@
   "dependencies": {
     "MD5": "^1.2.1",
     "ascii-table": "0.0.4",
+    "cheerio": "^0.17.0",
     "cron": "^1.0.4",
     "cson": "^1.6.1",
     "hubot": ">= 2.6.0 < 3.0.0",
