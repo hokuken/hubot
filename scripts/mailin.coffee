@@ -30,8 +30,6 @@ module.exports = (robot) ->
         # for Slack
         [message, data] = parser.createCustomMessage()
         console.log "Disqus mail parser catched"
-        console.log message
-        console.log data
         post message, data
       else
         res.writeHead 404
@@ -42,6 +40,9 @@ module.exports = (robot) ->
 
   post = (message, attachments...) ->
     robot.logger.info "Post to hubot hook via mailin script"
+    console.log message
+    console.log attachments
+
     path = "/services/hooks/hubot"
     data =
       username: robot.name
