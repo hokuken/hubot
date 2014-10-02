@@ -24,7 +24,7 @@ module.exports = (robot) ->
         text = "IP: #{result.address}\n" +
           "Domains:\n" + result.domains.join("\n") if result.domains?
 
-        if Slack? and robot.adapter instanceof Slack
+        if robot.adapter.post?
           message = {room: msg.envelope.user.room}
           attachment = {
             pretext: "*#{host}*"
