@@ -30,6 +30,8 @@ module.exports = (robot) ->
         # for Slack
         [message, data] = parser.createCustomMessage()
         console.log "Disqus mail parser catched"
+        console.log message
+        console.log data
         post message, data
       else
         res.writeHead 404
@@ -46,7 +48,7 @@ module.exports = (robot) ->
       channel: message.room
       attachments: attachments
 
-    robot.adapter.post? path, {payload: JSON.stringify data}
+    robot.adapter.post? path, data
 
   class MailParser
     constructor: (data) ->
