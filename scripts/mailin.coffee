@@ -25,11 +25,11 @@ module.exports = (robot) ->
     from = data.envelope?.from
 
     switch from
-      when "notifications@disqus.net", "customer@hokuken.com"
+      when "notifications@disqus.net"
         parser = new DisqusMailParser data
         # for Slack
         [message, data] = parser.createCustomMessage()
-        console.log "Disqus mail parser catched"
+        robot.logger.info "Disqus mail parser catched"
         post message, data
       else
         res.writeHead 404
