@@ -109,10 +109,17 @@ module.exports = (robot) ->
         digest: @digest
       }
 
+    room: ->
+      switch @shortname
+        when "1movie"
+          "#toiee"
+        else
+          "#support"
+
     createCustomMessage: ->
       [
         {
-          room: "#hubot"
+          room: @room()
         }
         {
           pretext: "*#{@subject()}* : <#{@url}|view comment>"
