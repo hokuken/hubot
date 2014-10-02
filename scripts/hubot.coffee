@@ -49,8 +49,8 @@ module.exports = (robot) ->
       robot.brain.data.hubot.lastVersion = pkg.version
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
         "バージョンは #{pkg.version} です！\n\n" +
-        "Peatix のイベント情報が表示できるようになりました！\n" +
-        "`#{robot.name} イベント情報` と話しかけてくださいね。"
+        "Disqus への投稿を私がキャッチするようにしました！\n" +
+        "早くコメントされないかな((o(´∀｀)o))ﾜｸﾜｸ"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
-      #robot.send {room: room}, message
+      robot.send {room: room}, message
     res.end "OK"
