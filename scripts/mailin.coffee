@@ -23,7 +23,6 @@ module.exports = (robot) ->
       return
 
     from = data.headers.From.match(/<([^>]+)>$/)[1]
-    console.log "from: #{from}"
 
     switch from
       when "notifications@disqus.net"
