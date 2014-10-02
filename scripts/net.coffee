@@ -21,10 +21,10 @@ module.exports = (robot) ->
       if result.err
         msg.send "lookup できません！"
       else
-        text = "IP: #{result.address}\n" +
-          "Domains:\n" + result.domains.join("\n") if result.domains?
+        text = "IP: #{result.address}\n"
+        text += "Domains:\n" + result.domains.join("\n") if result.domains?
 
-        if robot.adapter.post?
+        if robot.adapterName is "slack"
           message = {room: "#" + msg.envelope.user.room}
           attachment = {
             pretext: "*#{host}*"
@@ -34,19 +34,20 @@ module.exports = (robot) ->
               {
                 title: "IpAddress"
                 value: result.address
-                short: false
+                short: true
               }
             ]
             mrkdwn_in: ["pretext", "fallback"]
           }
-          for domain, i in result.domains?
-            title = "Domain"
-            title += "#{i+1}" if result.domains?.length > 1
-            attachment.fields.push {
-              title: title
-              value: domain
-              short: false
-            }
+          if result.domains
+            for domain, i in result.domains
+              title = "Domain"
+              title += "#{i+1}" if result.domains.length > 1
+              attachment.fields.push {
+                title: title
+                value: domain
+                short: true
+              }
           post message, attachment
 
         else
