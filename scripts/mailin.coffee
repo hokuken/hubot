@@ -24,6 +24,7 @@ module.exports = (robot) ->
 
     messageId = data.headers['Message-ID']
     host = messageId.replace(/^<|>$/g, "").split(/@/)[1]
+    console.log data.envelope
 
     switch host
       when "disqus.net"
