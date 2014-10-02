@@ -40,8 +40,6 @@ module.exports = (robot) ->
 
   post = (message, attachments...) ->
     robot.logger.info "Post to hubot hook via mailin script"
-    console.log message
-    console.log attachments
 
     path = "/services/hooks/hubot"
     data =
@@ -49,7 +47,7 @@ module.exports = (robot) ->
       channel: message.room
       attachments: attachments
 
-    robot.adapter.post? path, data
+    robot.adapter.post? path, JSON.stringify data
 
   class MailParser
     constructor: (data) ->
