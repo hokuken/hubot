@@ -46,7 +46,7 @@ module.exports = (robot) ->
       channel: message.room
       attachments: attachments
 
-    robot.adapter.post? path, {form: {payload: JSON.stringify data}}
+    robot.adapter.post? path, {payload: JSON.stringify data}
 
   class MailParser
     constructor: (data) ->
