@@ -2,7 +2,7 @@
 #   Provide network commands
 #
 # Commands:
-#   hubot nslookup <host> - lookup host's ip-address and host name resolved by ip-address
+#   hubot nslookup <host> - [net] lookup host's ip-address and host name resolved by ip-address
 
 URL = require "url"
 DNS = require "dns"
