@@ -70,7 +70,5 @@ module.exports = (robot) ->
 
   robot.respond /qhm:edit(?: (.+))?/i, editPage
 
-  robot.
-
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
