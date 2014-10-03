@@ -78,8 +78,8 @@ module.exports = (robot) ->
   ]
 
   releaseQHM = (msg) ->
-    msg.send "利用できません" unless process.env.ENSMALL_HOOK_URL and process.env.ENSMALL_TOKEN
-    msg.send "#dev でお願いします" unless msg.envelope.user.room in ["dev", "Shell"]
+    return msg.send "利用できません" unless process.env.ENSMALL_HOOK_URL and process.env.ENSMALL_TOKEN
+    return msg.send "#dev でお願いします" unless msg.envelope.user.room in ["dev", "Shell"]
 
     url = process.env.ENSMALL_HOOK_URL + "/release"
     data =
