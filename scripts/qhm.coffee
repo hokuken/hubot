@@ -15,7 +15,7 @@ module.exports = (robot) ->
   stringToHex = (msg) ->
     string = msg.match[1]
     hex = conv string, {in: "utf8", out: "hex"}
-    msg.send hex
+    msg.send hex.toUpperCase()
 
   hexToString = (msg) ->
     username = msg.envelope.user.name
@@ -69,6 +69,8 @@ module.exports = (robot) ->
   robot.respond /qhm:set (https?:\/\/.+)/i, setBaseUrl
 
   robot.respond /qhm:edit(?: (.+))?/i, editPage
+
+  robot.
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
