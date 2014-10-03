@@ -1,14 +1,22 @@
 # Description:
 #   Utility for QHM
 #
+# Configuration:
+#   ENSMALL_HOOK_URL - webhook on ensmall.net
+#   ENSMALL_TOKEN - Secret token of ensmall webhook
+#
 # Commands:
 #   hubot qhm:enc <text> - encode string to hex
 #   hubot qhm:dec <hex> - decode hex to string
 #   hubot qhm:set <url> - set QHM site url
 #   hubot qhm:edit <pagename|url> - get edit-page URL
+#   hubot qhm:release - Release latest QHM
 
+Path = require "path"
 URL = require "url"
 conv = require "binstring"
+request = require "request"
+crypto = require "crypto"
 
 module.exports = (robot) ->
 
@@ -61,6 +69,43 @@ module.exports = (robot) ->
     edit_url = URL.format urldata
     msg.send edit_url
 
+  release_messages = [
+    "QHM、リリースできました！"
+    "エンスモーくんが一晩でやってくれました！"
+    "フフフ、このリリースが終わったら私、結婚するんですよ :heart:"
+    "リリース完了！田舎の母さんに桃でも送ってやんなよ！"
+    "ダルビッシュに投手交代！おっとこれはリリーフでした！"
+  ]
+
+  releaseQHM = (msg) ->
+    msg.send "利用できません" unless process.env.ENSMALL_HOOK_URL and process.env.ENSMALL_TOKEN
+    msg.send "#dev でお願いします" unless msg.envelope.user.room in ["dev", "Shell"]
+
+    url = process.env.ENSMALL_HOOK_URL + "/release"
+    data =
+      repository: {name: "qhmpro"}
+    pkg = require Path.join __dirname, '..', 'package.json'
+    version = pkg.version
+
+    text = JSON.stringify data
+    key = process.env.ENSMALL_TOKEN
+    sha1 = crypto.createHmac('sha1', key)
+      .update(text).digest('hex')
+    signature = "sha1=#{sha1}"
+
+    request
+      url: url
+      method: "POST"
+      headers:
+        "User-Agent": "Hokuken-Hubot/#{version}"
+        "X-Hub-Signature": signature
+      json: data
+    , (err, res, body) ->
+      if err or res.statusCode is not 200
+        msg.send "リリースできませんでした :goberserk:"
+      else
+        msg.send msg.random release_messages
+
 
   robot.respond /qhm:enc (.+)$/i, stringToHex
 
@@ -69,6 +114,9 @@ module.exports = (robot) ->
   robot.respond /qhm:set (https?:\/\/.+)/i, setBaseUrl
 
   robot.respond /qhm:edit(?: (.+))?/i, editPage
+
+  robot.respond /qhm:release/i, releaseQHM
+  robot.respond /qhm\s*を?リリース/i, releaseQHM
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
