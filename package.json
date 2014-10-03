@@ -1,6 +1,6 @@
 {
   "name": "hokuken-bot",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "author": "Hokuken Inc.",
   "keywords": [
@@ -23,6 +23,7 @@
   "dependencies": {
     "MD5": "^1.2.1",
     "ascii-table": "0.0.4",
+    "binstring": "^0.2.1",
     "cheerio": "^0.17.0",
     "cron": "^1.0.4",
     "cson": "^1.6.1",

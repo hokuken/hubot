@@ -52,5 +52,5 @@ module.exports = (robot) ->
         "Disqus への投稿を私がキャッチするようにしました！\n" +
         "早くコメントされないかな((o(´∀｀)o))ﾜｸﾜｸ"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
-      robot.send {room: room}, message
+      # robot.send {room: room}, message
     res.end "OK"
