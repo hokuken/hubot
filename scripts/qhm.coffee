@@ -13,6 +13,7 @@
 #   hubot qhm:release - Release latest QHM
 #   hubot qhm:help <query> - get URL of search result at QHM manual
 #   hubot haik:<help|lessons|plugins|colors|themes> - get URL of QHM-haik manual.
+#   hubot haik:relase - Release latest haik-themes
 
 Path = require "path"
 URL = require "url"
@@ -108,6 +109,35 @@ module.exports = (robot) ->
       else
         msg.send msg.random release_messages
 
+  releaseHaik = (msg) ->
+    return msg.send "利用できません" unless process.env.ENSMALL_HOOK_URL and process.env.ENSMALL_TOKEN
+    return msg.send "#dev でお願いします" unless msg.envelope.user.room in ["dev", "hubot", "Shell"]
+
+    url = process.env.ENSMALL_HOOK_URL + "/release"
+    data =
+      repository: {name: "haik"}
+    pkg = require Path.join __dirname, '..', 'package.json'
+    version = pkg.version
+
+    text = JSON.stringify data
+    key = process.env.ENSMALL_TOKEN
+    sha1 = crypto.createHmac('sha1', key)
+      .update(text).digest('hex')
+    signature = "sha1=#{sha1}"
+
+    request
+      url: url
+      method: "POST"
+      headers:
+        "User-Agent": "Hokuken-Hubot/#{version}"
+        "X-Hub-Signature": signature
+      json: data
+    , (err, res, body) ->
+      if err or res.statusCode is not 200
+        msg.send "リリースできませんでした :goberserk:"
+      else
+        msg.send msg.random release_messages
+
   QHM_MANUAL_SITE = "http://ensmall.net/p/qhmpro/"
 
   queryManual = (msg) ->
@@ -162,10 +192,13 @@ module.exports = (robot) ->
   robot.respond /qhm:release/i, releaseQHM
   robot.respond /qhm\s*を?リリース/i, releaseQHM
 
+  robot.respond /haik:release/i, releaseHaik
+  robot.respond /haik\s*を?リリース/i, releaseHaik
+
   robot.respond /qhm:help(?: (.+))?/i, queryManual
   robot.respond /qhm\s+(.+)/i, queryManual
 
-  robot.respond /haik:(.+)/i, getHaikManual
+  robot.respond /haik:(?!release)(.+)/i, getHaikManual
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
