@@ -11,6 +11,8 @@
 #   hubot qhm:set <url> - set QHM site url
 #   hubot qhm:edit <pagename|url> - get edit-page URL
 #   hubot qhm:release - Release latest QHM
+#   hubot qhm:help <query> - get URL of search result at QHM manual
+#   hubot haik:<help|lessons|plugins|colors|themes> - get URL of QHM-haik manual.
 
 Path = require "path"
 URL = require "url"
