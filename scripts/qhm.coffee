@@ -119,26 +119,34 @@ module.exports = (robot) ->
       word: query
 
     url = URL.format urldata
-    msg.send url
+    msg.send "*#{query}* の検索結果はこちらです。\n" +
+      url
 
   HAIK_MANUAL_SITE = "http://ensmall.net/p/qhmhaik/"
 
   getHaikManual = (msg) ->
     url = HAIK_MANUAL_SITE
     content = msg.match[1] or ""
+    title = "haik 会員サイト"
     switch content
       when "plugin", "plugins"
         url = "#{url}plugins/"
+        title = "haik プラグインページ"
       when "lesson", "lessons"
         url = "#{url}lessons/"
+        title = "haik 講座ページ"
       when "parts", "component", "components"
         url = "#{url}components/"
+        title = "haik パーツページ"
       when "color", "colors"
         url = "#{url}colors/"
+        title = "haik カラーページ"
       when "theme", "themes"
         url = "#{url}themes/"
+        title = "haik テーマページ"
 
-    msg.send url
+    msg.send "*#{title}* はこちらですよ :+1:\n" +
+      url
 
   robot.respond /qhm:enc (.+)$/i, stringToHex
 
