@@ -112,6 +112,9 @@ module.exports = (robot) ->
 
   queryManual = (msg) ->
     query = msg.match[1] or ""
+    unless query
+      msg.send "*QHM会員サイト* はこちら\n#{QHM_MANUAL_SITE}"
+      return
     urldata = URL.parse QHM_MANUAL_SITE
     urldata.query =
       cmd: "search2"
