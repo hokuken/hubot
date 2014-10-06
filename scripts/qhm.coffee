@@ -106,6 +106,18 @@ module.exports = (robot) ->
       else
         msg.send msg.random release_messages
 
+  QHM_MANUAL_SITE = "http://ensmall.net/p/qhmpro/"
+
+  queryManual = (msg) ->
+    query = msg.match[1] or ""
+    urldata = URL.parse QHM_MANUAL_SITE
+    urldata.query =
+      cmd: "search2"
+      option: "ALL"
+      word: query
+
+    url = URL.format urldata
+    msg.send url
 
   robot.respond /qhm:enc (.+)$/i, stringToHex
 
@@ -117,6 +129,9 @@ module.exports = (robot) ->
 
   robot.respond /qhm:release/i, releaseQHM
   robot.respond /qhm\s*を?リリース/i, releaseQHM
+
+  robot.respond /qhm:help(?: (.+))?/i, queryManual
+  robot.respond /qhm\s+(.+)/i, queryManual
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
