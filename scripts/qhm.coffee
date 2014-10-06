@@ -11,6 +11,8 @@
 #   hubot qhm:set <url> - set QHM site url
 #   hubot qhm:edit <pagename|url> - get edit-page URL
 #   hubot qhm:release - Release latest QHM
+#   hubot qhm:help <query> - get URL of search result at QHM manual
+#   hubot haik:<help|lessons|plugins|colors|themes> - get URL of QHM-haik manual.
 
 Path = require "path"
 URL = require "url"
@@ -106,6 +108,48 @@ module.exports = (robot) ->
       else
         msg.send msg.random release_messages
 
+  QHM_MANUAL_SITE = "http://ensmall.net/p/qhmpro/"
+
+  queryManual = (msg) ->
+    query = msg.match[1] or ""
+    unless query
+      msg.send "*QHM会員サイト* はこちら\n#{QHM_MANUAL_SITE}"
+      return
+    urldata = URL.parse QHM_MANUAL_SITE
+    urldata.query =
+      cmd: "search2"
+      option: "ALL"
+      word: query
+
+    url = URL.format urldata
+    msg.send "*#{query}* の検索結果はこちらです。\n" +
+      url
+
+  HAIK_MANUAL_SITE = "http://ensmall.net/p/qhmhaik/"
+
+  getHaikManual = (msg) ->
+    url = HAIK_MANUAL_SITE
+    content = msg.match[1] or ""
+    title = "haik 会員サイト"
+    switch content
+      when "plugin", "plugins"
+        url = "#{url}plugins/"
+        title = "haik プラグインページ"
+      when "lesson", "lessons"
+        url = "#{url}lessons/"
+        title = "haik 講座ページ"
+      when "parts", "component", "components"
+        url = "#{url}components/"
+        title = "haik パーツページ"
+      when "color", "colors"
+        url = "#{url}colors/"
+        title = "haik カラーページ"
+      when "theme", "themes"
+        url = "#{url}themes/"
+        title = "haik テーマページ"
+
+    msg.send "*#{title}* はこちらですよ :+1:\n" +
+      url
 
   robot.respond /qhm:enc (.+)$/i, stringToHex
 
@@ -117,6 +161,11 @@ module.exports = (robot) ->
 
   robot.respond /qhm:release/i, releaseQHM
   robot.respond /qhm\s*を?リリース/i, releaseQHM
+
+  robot.respond /qhm:help(?: (.+))?/i, queryManual
+  robot.respond /qhm\s+(.+)/i, queryManual
+
+  robot.respond /haik:(.+)/i, getHaikManual
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
