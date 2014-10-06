@@ -49,9 +49,9 @@ module.exports = (robot) ->
       robot.brain.data.hubot.lastVersion = pkg.version
       message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
         "バージョンは #{pkg.version} です！\n\n" +
-        "いくつかユーティリティを追加しました！ヘルプ見てね！\n" +
-        "`#{robot.name} help qhm`\n" +
-        "`#{robot.name} help net`"
+        "QHMとhaikの会員サイトを開くコマンドを追加しましたー！\n" +
+        "`#{robot.name} qhm:help 検索ワード`\n" +
+        "`#{robot.name} haik:help`"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
       robot.send {room: room}, message
     res.end "OK"
