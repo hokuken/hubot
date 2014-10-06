@@ -119,6 +119,25 @@ module.exports = (robot) ->
     url = URL.format urldata
     msg.send url
 
+  HAIK_MANUAL_SITE = "http://ensmall.net/p/qhmhaik/"
+
+  getHaikManual = (msg) ->
+    url = HAIK_MANUAL_SITE
+    content = msg.match[1] or ""
+    switch content
+      when "plugin", "plugins"
+        url = "#{url}plugins/"
+      when "lesson", "lessons"
+        url = "#{url}lessons/"
+      when "parts", "component", "components"
+        url = "#{url}components/"
+      when "color", "colors"
+        url = "#{url}colors/"
+      when "theme", "themes"
+        url = "#{url}themes/"
+
+    msg.send url
+
   robot.respond /qhm:enc (.+)$/i, stringToHex
 
   robot.respond /qhm:dec (.+)$/i, hexToString
@@ -132,6 +151,8 @@ module.exports = (robot) ->
 
   robot.respond /qhm:help(?: (.+))?/i, queryManual
   robot.respond /qhm\s+(.+)/i, queryManual
+
+  robot.respond /haik:(.+)/i, getHaikManual
 
   robot.brain.on "loaded", ->
     robot.brain.data.qhm = robot.brain.data.qhm or {}
