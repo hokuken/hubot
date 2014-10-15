@@ -25,7 +25,7 @@ module.exports = (robot) ->
       "#{user.name}/#{user.room}"
 
     @get: (user) ->
-      Dialogue.dialogues[Dialogue.getKey user.name, user.room]
+      Dialogue.dialogues[Dialogue.getKey user]
 
     @add: (dialogue) ->
       Dialogue.dialogues[dialogue.key] = dialogue
@@ -34,7 +34,7 @@ module.exports = (robot) ->
       if user instanceof Dialogue
         key = user.key
       else
-        key = Dialogue.getKey user.name, user.room
+        key = Dialogue.getKey user
       delete Dialogue.dialogues[key]
 
     @listen: util.deprecate((->), "Dialogue.listen is deprecated.")
@@ -42,7 +42,7 @@ module.exports = (robot) ->
     constructor: (user, callback) ->
       @username = user.name
       @room = user.room
-      @key = Dialogue.getKey @username, @room
+      @key = Dialogue.getKey user
       @data = {}
       @listen callback
       Dialogue.add @
