@@ -79,6 +79,7 @@ module.exports = (robot) ->
   # extend robot.receive
   org_receive = robot.receive
   robot.receive = (message) ->
+    console.log message.user
     dialogue = Dialogue.get message.user
     dialogue?.callback.call dialogue, message
 
