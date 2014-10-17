@@ -220,7 +220,7 @@ module.exports = (robot) ->
             @complete()
 
     broadcast: ->
-      text = "@everyone @#{@user} からのお知らせがあります。\n" +
+      text = "<!everyone> @#{@user} からのお知らせがあります。\n" +
         @toString() + "\n" +
         messages.pick("ask_read")
       @send text
