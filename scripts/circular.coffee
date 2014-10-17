@@ -72,15 +72,16 @@ module.exports = (robot) ->
   class Circular
 
     # circulation interval - default: 30 min
-    @interval = 2000
+    @interval = 1800000 #2000
 
     # wait time of each dialogue - default: 5sec
-    @wait = 2000
+    @wait = 5000 #2000
 
     # wait time for respond to the dialogue - default: 5min
-    @listen = 5000
+    @listen = 300000 #5000
 
     # circulation active duration - default: 2 days
+    # TODO: consider duration
     @duration = 172800000
 
     @circulation = 0
