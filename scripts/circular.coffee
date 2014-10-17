@@ -14,6 +14,61 @@ module.exports = (robot) ->
 
   DEBUG = robot.adapterName is "shell"
 
+  messages =
+    new: [
+      "新しい回覧板を作成します。内容、あるいは内容が記載されているURLを教えてください。"
+      "こんにちは！回覧板ですねー。内容を一度にお願いします。URLでもOKです。"
+      "Hi, I'll create a new circular. Please tell me a message or URL."
+    ]
+    done_create: [
+      "回覧板を作成しました。閲覧状況は都度お知らせしますね。"
+      "確かに受け付けました。皆さんに回しておきますー！"
+      "Done. I'll ask everyone to read this circular."
+    ]
+    ask_read: [
+      "早速お読みください！読んだかどうか、後で確認しますね。"
+      "こりゃ必読だがや、みんな読んでおいてちょーでゃー！"
+      "Please read this circular in a few spare minutes."
+    ]
+    greet: [
+      "お忙しいところ失礼します。"
+      "邪魔するでぇ〜"
+      "ごきげんよう"
+      "How's it going?"
+    ]
+    ignored: [
+      "お返事がないので出直しますね。。"
+      "また来るでぇ〜"
+      "これが若さか。。。"
+    ]
+    thank: [
+      "ありがとうございます。"
+      "Thanks for reading!!"
+      "読み終わっちゃったんだ。。。私のこと、忘れないでねッ （未練を残しつつも走り去る乙女）"
+    ]
+    come_again: [
+      "では後ほど声かけますね！"
+      "ラピュタは滅びんよ、何度でもよみがえるさ"
+      "I'll be back"
+    ]
+    response_usage: [
+      "yes/no/what でお答えください！"
+      "I can accept only yes/no/what"
+      "返事はこう！「はい」「いいえ」「何ですか？」！"
+    ]
+    bye: [
+      "私たちにさよならなんて必要ありませんよね。"
+      "See you again :heart:"
+      "またご利用ください :hatching_chick:"
+    ]
+    pick: (context) ->
+      msgs = @[context] or []
+      return "" if msgs.length is 0
+
+      index = parseInt Math.random() * msgs.length, 10
+      return msgs[index]
+
+
   class Circular
 
     # circulation interval - default: 30 min
@@ -161,7 +216,7 @@ module.exports = (robot) ->
     broadcast: ->
       text = "@everyone @#{@user} からのお知らせがあります。\n" +
         @toString() + "\n" +
-        "早速お読みください！読んだかどうか、後で確認しますね。"
+        messages.pick("ask_read")
       robot.send {room: @room}, text
 
     # Request reading of circular
@@ -175,12 +230,12 @@ module.exports = (robot) ->
         return
 
       Circular.onDialogue = true
-      robot.send {room: @room}, "#{@user} さん、お忙しいところ失礼します。" +
+      robot.send {room: @room}, "#{@user} さん、" + messages.pick("greet") +
         "回覧板 No.#{@id} *#{@title}*は読まれましたか？ [yes/no/what]\n"
 
       # timeout for non-response from user
       timeout_id = setTimeout =>
-        robot.send {room: @room}, "お返事がないので出直しますね。。"
+        robot.send {room: @room}, messages.pick("ignored")
         @breakRequest(user)
         callback.call()
         Circular.onDialogue = false
@@ -193,7 +248,7 @@ module.exports = (robot) ->
         clearTimeout timeout_id
         text = message.text
         if /yes|OK|read|done|はい|読んだ|読みました|オッケー/i.test text
-          response = "ありがとうございます。"
+          response = messages.pick("thank")
           self.unread = _.without self.unread, user
           self.read.push user
           self.save()
@@ -202,18 +257,18 @@ module.exports = (robot) ->
           @end()
           Circular.onDialogue = false
         else if /no|NG|not read|unread|yet|まだ|読んでない|待って/i.test text
-          response = "では後ほど声かけますね！"
+          response = messages.pick("come_again")
           callback.call()
           @end()
           Circular.onDialogue = false
         else if /what|\?|？|何/i.test text
           response = "回覧板の内容はこちらです。\n" + self.toString() + "\n\n" +
-            "また後で話しかけますねー。"
+            messages.pick("come_again")
             callback.call()
             @end()
             Circular.onDialogue = false
         else
-          response = "yes/no/what でお答えくださいね〜"
+          response = messages.pick("response_usage")
 
         robot.send {room: message.user.room}, response
 
@@ -243,7 +298,7 @@ module.exports = (robot) ->
 
         text = "回覧板 No.#{@id} *#{@title}* を全員が閲覧したようです。\n" +
           "所要時間は #{duration}でした。\n" +
-          "シーユーアゲイン :heart:"
+          messages.pick("bye")
       robot.send {room: "@#{@user}"}, text
 
     complete: ->
@@ -273,7 +328,7 @@ module.exports = (robot) ->
   # ---- response ----
 
   addCircular = (msg) ->
-    msg.send "新しい回覧板を作成します。内容、あるいは内容が記載されているURLを教えてください。"
+    msg.send messages.pick("new")
 
     # Dialogue start
     robot.emit "dialogue:start", msg.envelope.user, (message) ->
@@ -285,7 +340,7 @@ module.exports = (robot) ->
       circular = new Circular options
       circular.run()
 
-      msg.send "OK、回覧板を作成しました。閲覧状況は都度お知らせしますね。"
+      msg.send messages.pick("done_create")
 
       @end()
 
