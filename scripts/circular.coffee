@@ -231,7 +231,7 @@ module.exports = (robot) ->
         return
 
       Circular.onDialogue = true
-      robot.send {room: @room}, "@#{user} さん、" + messages.pick("greet") +
+      robot.send {room: @room}, "@#{user} さん、" + messages.pick("greet") + "\n" +
         "回覧板 No.#{@id} *#{@title}* は読まれましたか？ [yes/no/what]\n"
 
       # timeout for non-response from user
