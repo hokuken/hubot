@@ -95,7 +95,7 @@ module.exports = (robot) ->
     @users: ->
       return ["user1", "user2", "user3"] if DEBUG
       users = []
-      for id, user of robot.brain.users
+      for id, user of robot.brain.users()
         users.push user.name
       users
 
