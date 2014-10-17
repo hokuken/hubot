@@ -51,6 +51,11 @@ module.exports = (robot) ->
       "ラピュタは滅びんよ、何度でもよみがえるさ"
       "I'll be back"
     ]
+    ask_again: [
+      "以上。読んだら「読んだ」って行ってくださいね。後で読むなら「待って」と。"
+      ":point_up: 面白かった？ [はい/いいえ]"
+      "Did you read yet? [yes/no]"
+    ]
     response_usage: [
       "yes/no/what でお答えください！"
       "I can accept only yes/no/what"
@@ -257,17 +262,14 @@ module.exports = (robot) ->
           robot.emit "circular:read", self
           @end()
           Circular.onDialogue = false
-        else if /no|NG|not read|unread|yet|まだ|読んでない|待って/i.test text
+        else if /no|NG|not read|unread|yet|いいえ|まだ|読んでない|待って/i.test text
           response = messages.pick("come_again")
           callback.call()
           @end()
           Circular.onDialogue = false
         else if /what|\?|？|何/i.test text
           response = "回覧板の内容はこちらです。\n" + self.toString() + "\n\n" +
-            messages.pick("come_again")
-            callback.call()
-            @end()
-            Circular.onDialogue = false
+            messages.pick("ask_again")
         else
           response = messages.pick("response_usage")
 
