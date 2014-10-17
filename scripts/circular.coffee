@@ -223,7 +223,7 @@ module.exports = (robot) ->
       text = "@everyone @#{@user} からのお知らせがあります。\n" +
         @toString() + "\n" +
         messages.pick("ask_read")
-      robot.send {room: @room}, text
+      @send text
 
     # Request reading of circular
     requestRead: (user, callback) ->
@@ -236,12 +236,12 @@ module.exports = (robot) ->
         return
 
       Circular.onDialogue = true
-      robot.send {room: @room}, "@#{user} さん、" + messages.pick("greet") + "\n" +
+      @send "@#{user} さん、" + messages.pick("greet") + "\n" +
         "回覧板 No.#{@id} *#{@title}* は読まれましたか？ [yes/no/what]\n"
 
       # timeout for non-response from user
       timeout_id = setTimeout =>
-        robot.send {room: @room}, messages.pick("ignored")
+        @send messages.pick("ignored")
         @breakRequest(user)
         callback.call()
         Circular.onDialogue = false
@@ -279,6 +279,21 @@ module.exports = (robot) ->
       dialogue_with = user
       dialogue_with = "Shell" if DEBUG
       robot.emit "dialogue:break", {name: dialogue_with, room: @room}
+
+    # Send to room adapt to slack
+    send: (message) ->
+      path = "/services/hooks/hubot"
+      data =
+        text:     message
+        username: @user
+        channel:  @room
+        mrkdwn:   true
+
+      if robot.adapter.post
+        robot.adapter.post? path, JSON.stringify data
+      else
+        robot.send {room: @room}, message
+
 
     # Send report to writer
     report: ->
