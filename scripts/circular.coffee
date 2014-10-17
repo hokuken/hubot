@@ -356,17 +356,54 @@ module.exports = (robot) ->
 
     # Dialogue start
     robot.emit "dialogue:start", msg.envelope.user, (message) ->
-      text = message.text
-      options =
-        user: message.user.name
-        room: message.user.room
-        content: message.text
-      circular = new Circular options
-      circular.run()
 
-      msg.send messages.pick("done_create")
+      done_create = =>
+        circular = new Circular @get "circular"
+        circular.run()
+        msg.send messages.pick("done_create")
+        @end()
 
-      @end()
+      text = "#{message.text}"
+
+      circular = @get "circular"
+
+      if circular
+        switch @get "phase"
+          when "options:start:confirm"
+            if /yes|はい|する/i.test text
+              msg.send "対象ユーザーは誰ですか？ [all/...users...]"
+              @set "phase", "options:users"
+            else
+              @set "phase", "options:end"
+              done_create()
+          when "options:users"
+            if /^all|全員$/i.test text
+              msg.send "全員ですね"
+              @set "phase", "options:end"
+              done_create()
+            else
+              tokens = text.split /\s+/
+              circular.users = _.map tokens, (token) ->
+                token.replace /@/g, ""
+              circular.users = _.intersection Circular.users(), circular.users
+              if circular.users.length
+                msg.send "#{circular.users.join ' '} の #{circular.users.length} 人ですね。"
+                @set "circular", circular
+                @set "phase", "options:end"
+                done_create()
+              else
+                msg.send "やだなぁ、有効なユーザー名じゃないですよ。"
+
+      else
+        options =
+          user: message.user.name
+          room: message.user.room
+          content: message.text
+
+        @set "circular", options
+        msg.send "オプション設定をしますか？ [yes/no]"
+        @set "phase", "options:start:confirm"
+
 
   robot.respond /circular:add/i, addCircular
   robot.respond /回覧板を?回して/i, addCircular
