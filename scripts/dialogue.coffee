@@ -97,3 +97,7 @@ module.exports = (robot) ->
   robot.on "dialogue:set", (user, key, value) ->
     dialogue = Dialogue.get user
     dialogue?.set key, value
+
+  robot.on "dialogue:break", (user) ->
+    dialogue = Dialogue.get user
+    dialogue?.end()
