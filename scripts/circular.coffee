@@ -112,6 +112,7 @@ module.exports = (robot) ->
       @content = options.content
 
       @type = options.type or null
+      @users = options.users or []
       @read = options.read or []
       @unread = options.unread or []
       @queue = options.queue or []
@@ -132,6 +133,7 @@ module.exports = (robot) ->
         id: @id
         user: @user
         room: @user
+        users: @users
         read: @read
         unread: @unread
         queue: @queue
@@ -180,7 +182,8 @@ module.exports = (robot) ->
       str
 
     setQueue: ->
-      @unread = _.without Circular.users(), @user
+      users = @users.length and @users or Circular.users()
+      @unread = _.without users, @user
       @queue = @unread.slice 0
 
     # Start circular dialogues
@@ -220,7 +223,10 @@ module.exports = (robot) ->
             @complete()
 
     broadcast: ->
-      text = "<!everyone> @#{@user} からのお知らせがあります。\n" +
+      target = "<!everyone>"
+      if @users.length > 0
+        target = "@#{@users.join ", @"}"
+      text = "#{target}: @#{@user} からのお知らせがあります。\n" +
         @toString() + "\n" +
         messages.pick("ask_read")
       @send text
