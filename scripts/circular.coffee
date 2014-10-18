@@ -191,9 +191,7 @@ module.exports = (robot) ->
       @save()
 
       if @unread.length > 0 and @unread.length is @queue.length
-        setTimeout =>
-          @broadcast()
-        , @wait * 2
+        @notify()
 
       if @unread.length > 0 and @queue.length is 0
         @queue = @unread.slice 0
@@ -222,14 +220,16 @@ module.exports = (robot) ->
           else
             @complete()
 
-    broadcast: ->
+    # send DM to specified users
+    notify: ->
       target = "<!everyone>"
-      if @users.length > 0
-        target = "@#{@users.join ", @"}"
-      text = "#{target}: @#{@user} からのお知らせがあります。\n" +
-        @toString() + "\n" +
+      users = Circular.users()
+      users = @users if @users.length
+      text = "@#{@user} から回覧板が届いています。\n\n" +
+        @toString() + "\n\n" +
         messages.pick("ask_read")
-      @send text
+      for u in users
+        robot.send {room: "@#{u}"}, text
 
     # Request reading of circular
     requestRead: (user, callback) ->
@@ -367,7 +367,16 @@ module.exports = (robot) ->
 
       circular = @get "circular"
 
-      if circular
+      if ! circular
+        options =
+          user: message.user.name
+          room: message.user.room
+          content: message.text
+
+        @set "circular", options
+        msg.send "オプション設定をしますか？ [yes/no]"
+        @set "phase", "options:start:confirm"
+      else
         switch @get "phase"
           when "options:start:confirm"
             if /yes|はい|する/i.test text
@@ -387,22 +396,12 @@ module.exports = (robot) ->
                 token.replace /@/g, ""
               circular.users = _.intersection Circular.users(), circular.users
               if circular.users.length
-                msg.send "#{circular.users.join ' '} の #{circular.users.length} 人ですね。"
+                msg.send "#{circular.users.join ', '} の #{circular.users.length} 人ですね。"
                 @set "circular", circular
                 @set "phase", "options:end"
                 done_create()
               else
                 msg.send "やだなぁ、有効なユーザー名じゃないですよ。"
-
-      else
-        options =
-          user: message.user.name
-          room: message.user.room
-          content: message.text
-
-        @set "circular", options
-        msg.send "オプション設定をしますか？ [yes/no]"
-        @set "phase", "options:start:confirm"
 
 
   robot.respond /circular:add/i, addCircular
