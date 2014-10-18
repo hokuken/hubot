@@ -27,7 +27,7 @@ module.exports = (robot) ->
     ]
     ask_read: [
       "早速お読みください！読んだかどうか、後で確認しますね。"
-      "こりゃ必読だがや、みんな読んでおいてちょーでゃー！"
+      "こりゃ必読だがや、おみゃーさん、はよ読んでおいてちょーでゃーよ！"
       "Please read this circular in a few spare minutes."
     ]
     greet: [
@@ -44,22 +44,19 @@ module.exports = (robot) ->
     thank: [
       "ありがとうございます。"
       "Thanks for reading!!"
-      "読み終わっちゃったんだ。。。私のこと、忘れないでねッ （未練を残しつつも走り去る乙女）"
+      "ホントに読んだんだ。。。もう、お別れダネ。。私のこと、忘れないでねッ （未練を残しつつも走り去る乙女）"
     ]
     come_again: [
       "では後ほど声かけますね！"
       "ラピュタは滅びんよ、何度でもよみがえるさ"
       "I'll be back"
     ]
-    ask_again: [
-      "以上。読んだら「読んだ」って行ってくださいね。後で読むなら「待って」と。"
-      ":point_up: 面白かった？ [はい/いいえ]"
-      "Did you read yet? [yes/no]"
-    ]
     response_usage: [
-      "yes/no/what でお答えください！"
-      "I can accept only yes/no/what"
-      "返事はこう！「はい」「いいえ」「何ですか？」！"
+      "回覧板の詳細をDMに送っていますよ！\n・・・で、読みました？ [yes/no]"
+      "後で読むなら `後で` とお応えくださいね〜"
+      ":heart: slackbot って書いてあるところ、通知ありません？\n確認済みなら `yes` ください :smile:"
+      "yes/no でお答えください！"
+      "I can accept only yes/no"
     ]
     bye: [
       "私たちにさよならなんて必要ありませんよね。"
@@ -243,7 +240,7 @@ module.exports = (robot) ->
 
       Circular.onDialogue = true
       @send "@#{user} さん、" + messages.pick("greet") + "\n" +
-        "回覧板 No.#{@id} *#{@title}* は読まれましたか？ [yes/no/what]\n"
+        "回覧板 No.#{@id} *#{@title}* は読まれましたか？ [yes/no]"
 
       # timeout for non-response from user
       timeout_id = setTimeout =>
@@ -273,9 +270,6 @@ module.exports = (robot) ->
           callback.call()
           @end()
           Circular.onDialogue = false
-        else if /what|\?|？|何/i.test text
-          response = "回覧板の内容はこちらです。\n" + self.toString() + "\n\n" +
-            messages.pick("ask_again")
         else
           response = messages.pick("response_usage")
 
