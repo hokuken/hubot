@@ -63,6 +63,16 @@ module.exports = (robot) ->
       "See you again :heart:"
       "またご利用ください :hatching_chick:"
     ]
+    invalid_number_provided: [
+      "該当する回覧板はありません。"
+      "すみません、提示した中から選んでください。"
+      "あなた様の目は節穴でございますか？？"
+    ]
+    nothing_to_read: [
+      "もう回覧板ないですよ。"
+      "えーっと、回覧板は全部お読みのようです。。"
+      "You have read all circulars."
+    ]
     pick: (context) ->
       msgs = @[context] or []
       return "" if msgs.length is 0
@@ -90,9 +100,11 @@ module.exports = (robot) ->
 
     @onDialogue = false
 
+    @circulars = []
+
     # Load a Circular instance from saved data
     @load: (data) ->
-      new Circular(data)
+      Circular.circulars[data.id-1] or new Circular data
 
     @users: ->
       return ["user1", "user2", "user3"] if DEBUG
@@ -124,6 +136,8 @@ module.exports = (robot) ->
       users_total = @read.length + @unread.length + @queue.length
       @parseContent() if @type is null
       @setQueue() if users_total is 0
+
+      Circular.circulars[@id-1] = @
 
     export: ->
       {
@@ -216,6 +230,15 @@ module.exports = (robot) ->
             , @interval
           else
             @complete()
+
+    readBy: (user) ->
+      if user in @unread
+        @unread = _(@unread).without user
+        @queue = _(@queue).without user
+        @read.push user
+        @save()
+        @complete()
+        robot.emit "circular:read", @
 
     # send DM to specified users
     notify: ->
@@ -397,9 +420,44 @@ module.exports = (robot) ->
               else
                 msg.send "やだなぁ、有効なユーザー名じゃないですよ。"
 
+  readCircular = (msg) ->
+    dialogue_with = user = msg.envelope.user.name
+    user = "user1" if DEBUG
+    circulars = robot.brain.data.circular.backNumbers
+    circulars = _(circulars).filter (circular) ->
+      !circular.completed_at and user in circular.unread
+    if circulars.length is 1
+      circular = Circular.load circulars.pop()
+      circular.readBy user
+      msg.send "回覧板 No.#{circular.id} *#{circular.title}* を読まれたのですね！\n" +
+        messages.pick("thank")
+    else if circulars.length > 1
+      msg.send "どの回覧版ですか？"
+      text = ""
+      for circular in circulars
+        text += "#{circular.id} : *#{circular.title}*\n"
+      msg.send text
+      robot.emit "dialogue:start", {name: dialogue_with, room: msg.envelope.user.room}, (message) ->
+        text = message.text
+        if text.match /^(\d+)$/i
+          cid = parseInt(RegExp.$1, 10)
+          circular = _(circulars).find (circular) ->
+            circular.id is cid
+          circular = Circular.load circular
+          circular.readBy user
+          msg.send "回覧板 No.#{circular.id} *#{circular.title}* を読まれたのですね！\n" +
+            messages.pick("thank")
+        else
+          msg.send messages.pick "invalid_number_provided"
+        @end
+    else
+      msg.send messages.pick "nothing_to_read"
 
   robot.respond /circular:add/i, addCircular
-  robot.respond /回覧板を?回して/i, addCircular
+  robot.respond /回覧板を?回/i, addCircular
+
+  robot.respond /circular:read/i, readCircular
+  robot.respond /回覧板を?読/i, readCircular
 
   robot.respond /circular:clear/i, (msg) ->
     robot.brain.data.circular = {backNumbers: []}
