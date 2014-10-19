@@ -3,6 +3,7 @@
 #
 # Commands:
 #   hubot circular:add - Add circular. *alias* : `hubot 回覧板を回して`
+#   hubot circular:read - Inform hubot that you have read a circular. *alias* : `hubot 回覧板を読んだ`
 #   hubot circular:clear - Clear all data for debug
 
 moment  = require "moment"
@@ -27,8 +28,13 @@ module.exports = (robot) ->
     ]
     ask_read: [
       "早速お読みください！読んだかどうか、後で確認しますね。"
-      "こりゃ必読だがや、おみゃーさん、はよ読んでおいてちょーでゃーよ！"
+      "こりゃ必読だがや、おみゃーさん、はよ読んでおいてちょーよ！"
       "Please read this circular in a few spare minutes."
+    ]
+    inform_read: [
+      "私が確認するより先に読んだらチャンネルの方で `#{robot.name} 回覧板読んだ` と報告くださってもOKです。"
+      "ちゃっと読んだら `#{robot.name} 回覧板読んだがや〜` って行ってちょーだぁ！ここじゃあかんよー。"
+      "Please send me `#{robot.name} circular:read` when you read."
     ]
     greet: [
       "お忙しいところ失礼します。"
@@ -247,7 +253,8 @@ module.exports = (robot) ->
       users = @users if @users.length
       text = "@#{@user} から回覧板が届いています。\n\n" +
         @toString() + "\n\n" +
-        messages.pick("ask_read")
+        messages.pick("ask_read") + "\n" +
+        messages.pick("inform_read")
       for u in users
         robot.send {room: "@#{u}"}, text
 
@@ -257,7 +264,6 @@ module.exports = (robot) ->
       self = @
 
       if Circular.onDialogue
-        console.log "skip dialogue"
         callback.call()
         return
 
@@ -359,7 +365,6 @@ module.exports = (robot) ->
     robot.brain.data.circular = robot.brain.data.circular or {backNumbers: []}
     robot.brain.data.circular.backNumbers = robot.brain.data.circular.backNumbers or []
     Circular.circulation = robot.brain.data.circular.backNumbers.length
-    console.log "Circular last id : #{Circular.circulation}"
 
     # load circulars
     for data in robot.brain.data.circular.backNumbers
