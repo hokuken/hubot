@@ -403,7 +403,7 @@ module.exports = (robot) ->
         switch @get "phase"
           when "options:start:confirm"
             if /yes|はい|する/i.test text
-              msg.send "対象ユーザーは誰ですか？ [all/...users...]"
+              msg.send "対象ユーザーは誰ですか？ [all/user1 user2 ...]"
               @set "phase", "options:users"
             else
               @set "phase", "options:end"
@@ -460,10 +460,10 @@ module.exports = (robot) ->
       msg.send messages.pick "nothing_to_read"
 
   robot.respond /circular:add/i, addCircular
-  robot.respond /回覧板を?回/i, addCircular
+  robot.respond /回覧板(を|、)?回/i, addCircular
 
   robot.respond /circular:read/i, readCircular
-  robot.respond /回覧板を?読/i, readCircular
+  robot.respond /回覧板(を|、)?読/i, readCircular
 
   robot.respond /circular:clear/i, (msg) ->
     robot.brain.data.circular = {backNumbers: []}
