@@ -243,7 +243,8 @@ module.exports = (robot) ->
         @queue = _(@queue).without user
         @read.push user
         @save()
-        @complete()
+        if @unread.length is 0
+          @complete()
         robot.emit "circular:read", @
 
     # send DM to specified users
