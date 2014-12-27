@@ -47,10 +47,10 @@ module.exports = (robot) ->
 
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
       robot.brain.data.hubot.lastVersion = pkg.version
-      message = "@everyone #{robot.name}は年末年始モードに切り替わりました。\n"
-              + "ちょっと静かにしてます（笑）\n"
-              + "もちろん常駐してるので声かけてくださいねー :sleeping:\n"
-              + "ではでは、良いお年を！ :smile_cat:"
+      message = "@everyone #{robot.name}は年末年始モードに切り替わりました。\n" +
+                "ちょっと静かにしてます（笑）\n" +
+                "もちろん常駐してるので声かけてくださいねー :sleeping:\n" +
+                "ではでは、良いお年を！ :smile_cat:"
       # message = "@everyone 新しい#{robot.name}に生まれ変わりました。\n" +
       #   "バージョンは #{pkg.version} です！\n\n" +
       #   "回覧板を回すコマンドを追加しましたー！\n" +
