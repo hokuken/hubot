@@ -20,6 +20,11 @@ clean:
   time: "0 10 1 * *"
   message: "今日は月始めです。掃除でもしませんか？ @everyone"
 
+# 毎週月曜日は定例会議
+mtg:
+  time: "0 10 * * 1"
+  message: "後30分で定例会議開始ですよ！準備はOK？ :raised_hands: @everyone"
+
 greet:
   time: "0 09 * * 1-5"
   message: [
