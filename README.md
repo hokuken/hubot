@@ -146,6 +146,13 @@ Set hubot name like:
 
 [hubot-adapters]: https://github.com/github/hubot/blob/master/docs/adapters.md
 
+
+## Script Configuration
+
+Set [GIPHY API](https://github.com/Giphy/GiphyAPI) KEY
+    % heroku config:set HUBOT_GIPHY_API_KEY="..."
+
+
 ## Restart the bot
 
 You may want to get comfortable with `heroku logs` and `heroku restart`
