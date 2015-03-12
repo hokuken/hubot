@@ -1,11 +1,11 @@
 # Description:
 #   Run Cron job
 
-util = require 'util'
+util    = require 'util'
+path    = require 'path'
 CronJob = require("cron").CronJob
-CSON = require 'cson'
 
-jobs = CSON.parseFileSync 'config/jobs.cson'
+jobs = require path.join(__dirname, '../config/jobs')
 
 module.exports = (robot) ->
 
