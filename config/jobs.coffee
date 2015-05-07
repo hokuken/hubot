@@ -27,11 +27,12 @@ module.exports =
 
   greet:
     time: "0 09 * * 1-5"
+    room: '#goal'
     message: [
-      "おはようございます！今日の目標は？ @everyone\n
-      「目標設定」と話しかけてください！",
+      "おはようございます！今日はどこでお仕事しますか？ @everyone\n
+      場所と目標を教えてください :triangular_flag_on_post:",
       "おはようさんです！今日は何しますか？ @everyone\n
-      「目標設定」って言ってみてください。"]
+      ちなみに、今どこですか？ :coffee:"]
 
   review:
     time: "27 18 * * 1-5"
