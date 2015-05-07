@@ -47,9 +47,8 @@ module.exports = (robot) ->
 
     if Semver.gt pkg.version, robot.brain.data.hubot.lastVersion
       robot.brain.data.hubot.lastVersion = pkg.version
-      message = "@everyone バージョンアップです！GIF画像が探せます。\n" +
-                "gif me kamehameha!:bomb:\n" +
-                "なんつってみてください。"
+      message = "@everyone 次から \#goal で朝のあいさつしますねー。\n" +
+                "あらためてよろしくですー :rice_ball:"
       room = process.env.HUBOT_NOTIFICATION_CHANNEL or null
       robot.send {room: room}, message
     res.end "OK"
