@@ -48,7 +48,7 @@ module.exports = (robot) ->
                 short: true
               }
           data = {
-            channel:     "#" + msg.envelope.user.room
+            channel:     msg.envelope.user.room
             attachments: [attachment]
           }
 
