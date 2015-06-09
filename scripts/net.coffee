@@ -25,7 +25,6 @@ module.exports = (robot) ->
         text += "Domains:\n" + result.domains.join("\n") if result.domains?
 
         if robot.adapterName is "slack"
-          message = {room: "#" + msg.envelope.user.room}
           attachment = {
             pretext: "*#{host}*"
             fallback: text
@@ -48,7 +47,13 @@ module.exports = (robot) ->
                 value: domain
                 short: true
               }
-          post message, attachment
+          data = {
+            channel:     "#" + msg.envelope.user.room
+            attachments: [attachment]
+          }
+
+          robot.emit "slack.attachment", data
+
 
         else
           msg.send text
@@ -65,14 +70,3 @@ module.exports = (robot) ->
           unless err
             result.domains = domains
           callback.call robot, result
-
-  post = (message, attachments...) ->
-    robot.logger.info "Post to hubot hook via net script"
-
-    path = "/services/hooks/hubot"
-    data =
-      username: robot.name
-      channel: message.room
-      attachments: attachments
-
-    robot.adapter.post? path, JSON.stringify data
