@@ -50,7 +50,6 @@ module.exports = (robot) ->
           # post message, attachment
           data = {
             channel:     "#" + msg.envelope.user.room
-            text:        text
             attachments: [attachment]
           }
 
