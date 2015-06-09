@@ -24,11 +24,7 @@ module.exports = (robot) ->
         text = "IP: #{result.address}\n"
         text += "Domains:\n" + result.domains.join("\n") if result.domains?
 
-        msg.send text
-        return
-
         if robot.adapterName is "slack"
-          message = {room: "#" + msg.envelope.user.room}
           attachment = {
             pretext: "*#{host}*"
             fallback: text
@@ -51,7 +47,15 @@ module.exports = (robot) ->
                 value: domain
                 short: true
               }
-          post message, attachment
+          # post message, attachment
+          data = {
+            channel:     "#" + msg.envelope.user.room
+            text:        text
+            attachments: [attachment]
+          }
+
+          robot.emit "slack.attachment", data
+
 
         else
           msg.send text
