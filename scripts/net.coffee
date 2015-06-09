@@ -47,7 +47,6 @@ module.exports = (robot) ->
                 value: domain
                 short: true
               }
-          # post message, attachment
           data = {
             channel:     "#" + msg.envelope.user.room
             attachments: [attachment]
@@ -71,14 +70,3 @@ module.exports = (robot) ->
           unless err
             result.domains = domains
           callback.call robot, result
-
-  post = (message, attachments...) ->
-    robot.logger.info "Post to hubot hook via net script"
-
-    path = "/services/hooks/hubot"
-    data =
-      username: robot.name
-      channel: message.room
-      attachments: attachments
-
-    robot.adapter.post? path, JSON.stringify data
